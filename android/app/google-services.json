@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "466840419526",
+    "project_id": "bumou-cn",
+    "storage_bucket": "bumou-cn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466840419526:android:8cbd26e235b3d3c2d6abc7",
+        "android_client_info": {
+          "package_name": "app.bumoumobile.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYxfH9WFWFnx-24AFmmo957kDtI63F6yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466840419526:android:fb8d53b4ef22ed32d6abc7",
+        "android_client_info": {
+          "package_name": "com.bumou.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYxfH9WFWFnx-24AFmmo957kDtI63F6yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
