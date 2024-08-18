@@ -53,7 +53,7 @@ class _SplashViewState extends State<SplashView> {
     if (isFirstOpen) {
       await Common.showPrivacyPolicyBottomSheet(context);
 
-      setState(() {});
+      if (mounted) setState(() {});
     }
     await Future.delayed(const Duration(milliseconds: 500));
     checkForConsent();

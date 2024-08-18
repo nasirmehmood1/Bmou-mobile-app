@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:app/Constants/api.dart';
 import 'package:app/Controller/chats/chat_messages_controller.dart';
@@ -34,6 +36,8 @@ class ChatController extends GetxController {
 
   void connectSocket() {
     try {
+      log("Connecting Chat Room Socket");
+
       socket = io.io(
         Apis.socketUrl,
         OptionBuilder()
@@ -206,18 +210,31 @@ class ChatController extends GetxController {
       socket.on("chat", (data) {
         log("On -chat-");
 
+        log("DATA -> ${data}");
+
         log("Controller not found: ${Get.arguments}");
         // final chatroom = allChatrooms.firstWhereOrNull((element) => element.id == data['chatroom']['id']);
         data['chatroom']['members']
             .removeWhere((element) => element['id'] == LocalStorage.getUserId);
-        Chatroom chatroom = Chatroom.fromJson(data['chatroom']);
-        // chatroom.members!.removeWhere((element) => element.id == LocalStorage.getUserId);
-        log("Chatroom: ${chatroom.id}");
-        allChatrooms.removeWhere((element) => element.id == chatroom.id);
-        allChatrooms.insert(0, chatroom);
+        Chatroom newChatRoom = Chatroom.fromJson(data['chatroom']);
+
+        Chatroom? existingChatRoom = allChatrooms
+            .firstWhereOrNull((element) => element.id == newChatRoom.id);
+        if (existingChatRoom != null) {
+          newChatRoom.unreadCount = existingChatRoom.unreadCount != null
+              ? existingChatRoom.unreadCount! + 1
+              : 1;
+        }
+
+        log("Chatroom: ${newChatRoom.id}");
+
+        allChatrooms.removeWhere((element) => element.id == newChatRoom.id);
+
         if (Get.isRegistered<ChatMessagesController>()) {
           log("Controller found: ${Get.arguments}");
           if (Get.arguments == data['chatroom']['id']) {
+            newChatRoom.unreadCount = 0;
+
             log("active chatroom found: ${data['chatroom']['id']}");
             Get.find<ChatMessagesController>()
                 .allMessages
@@ -233,9 +250,13 @@ class ChatController extends GetxController {
                     .insert(0, ChatMessage.fromJson(data['message']));
                 Get.find<ChatMessagesController>().update();
               }
-            } else {}
+            } else {
+              log("I AM REACHED HERE -->");
+            }
           }
         } else {}
+
+        allChatrooms.insert(0, newChatRoom);
         update();
       });
     } catch (e) {
@@ -298,10 +319,12 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> getAllChatrooms() async {
+  Future<void> getAllChatrooms({bool shouldShowLoading = true}) async {
     try {
-      isLoading = true;
-      update();
+      if (shouldShowLoading) {
+        isLoading = true;
+        update();
+      }
       final response = await NetworkClient.get(
           "${Apis.chatrooms}?page=$page&pageSize=$pageSize");
       Logger.message("Get All Chatrooms: ${response.statusCode}}");

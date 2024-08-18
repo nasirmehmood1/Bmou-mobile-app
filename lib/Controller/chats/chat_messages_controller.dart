@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/Constants/api.dart';
+import 'package:app/Controller/auth_controller.dart';
 import 'package:app/Controller/chats/chat_controller.dart';
 import 'package:app/Data/Network/request_client.dart';
 import 'package:app/Model/chats/chat_message.dart';
@@ -36,6 +37,8 @@ class ChatMessagesController extends GetxController {
         allMessages = (response.data as List)
             .map((e) => ChatMessage.fromJson(e))
             .toList();
+
+        _markAllMessagesAsRead();
       }
     } on DioException catch (e) {
       errorMsg = Common.getErrorMsgOfDio(e);
@@ -46,6 +49,21 @@ class ChatMessagesController extends GetxController {
     } finally {
       isLoading = false;
       update();
+    }
+  }
+
+  _markAllMessagesAsRead() {
+    try {
+      for (int i = 0; i < allMessages.length; i++) {
+        if (!allMessages[i]
+            .readBy
+            .map((e) => e.userId)
+            .contains((Get.find<AuthController>().user!.id))) {
+          markAsRead(chatroomId: Get.arguments, messageId: allMessages[i].id!);
+        }
+      }
+    } catch (e) {
+      // print("MARKING MESSAGES AS READ FAILED --> $e");
     }
   }
 

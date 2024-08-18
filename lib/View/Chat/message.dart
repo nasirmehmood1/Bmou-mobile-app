@@ -108,7 +108,6 @@ class _MessageViewState extends State<MessageView> {
             ),
           ),
         ),
-
         actions: [
           if (!isDeletedUser) ...[
             // IconButton(

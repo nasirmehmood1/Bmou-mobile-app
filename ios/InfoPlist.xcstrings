@@ -157,24 +157,24 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "he app does not use your location in the background but needs this permission for cases when the app is in the foreground or running."
+            "value" : "The app does not use your location in the background but needs this permission for cases when the app is in the foreground or running."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "应用程序不会在后台使用您的位置信息，但需要此权限以便在应用程序位于前台或正在运行时使用。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "应用程序不会在后台使用您的位置信息，但需要此权限以便在应用程序位于前台或正在运行时使用。"
           }
         },
         "zh-HK" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "应用程序不会在后台使用您的位置信息，但需要此权限以便在应用程序位于前台或正在运行时使用。"
           }
         }
