@@ -13,6 +13,7 @@ import 'package:app/Model/chats/chatroom.dart';
 import 'package:app/Utils/comon.dart';
 import 'package:app/Utils/loading_overlays.dart';
 import 'package:app/Utils/logging.dart';
+import 'package:app/View/Chat/all_chat.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_manager/flutter_ringtone_manager.dart';
@@ -354,6 +355,34 @@ class ChatController extends GetxController {
   //     log("Send Help Message Error: $e");
   //   }
   // }
+
+  deleteChatRoom(Chatroom chatroom) async {
+    try {
+      isLoading = true;
+      update();
+
+      log("URL --> ${Apis.chatrooms}/${chatroom.id}");
+
+      final response =
+          await NetworkClient.delete("${Apis.chatrooms}/${chatroom.id}");
+
+      // Logger.message("Get All Chatrooms: ${response.statusCode}}");
+      if (response.statusCode == 200) {
+        await getAllChatrooms();
+        Get.snackbar(
+          "Chat Deleted successfully.",
+          "",
+        );
+      }
+    } on DioException catch (e) {
+      Logger.error("Delete ChatRoom Error: ${Common.getErrorMsgOfDio(e)}");
+    } catch (e) {
+      Logger.error("-get-all-chatrooms- Error: $e");
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
 
   List<Chatroom> allChatrooms = [];
   String? chatroomErrorMsg;

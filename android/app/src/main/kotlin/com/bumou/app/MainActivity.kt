@@ -1,4 +1,4 @@
-package app.bumoumobile.com
+package com.bumou.app
 
 import io.flutter.embedding.android.FlutterActivity
 

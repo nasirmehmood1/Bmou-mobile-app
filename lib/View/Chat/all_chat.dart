@@ -6,9 +6,11 @@ import 'package:app/Model/chats/chat_message.dart';
 import 'package:app/Model/chats/chatroom.dart';
 import 'package:app/Utils/datetime.dart';
 import 'package:app/Utils/loading_overlays.dart';
+import 'package:app/View/Chat/Widget/delete_chat_confirmation_dialog.dart';
 import 'package:app/View/Chat/message.dart';
 import 'package:app/View/Friends/all_friend.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
 import '../Widget/k_net_image.dart';
@@ -85,55 +87,83 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                                     ChatMessageType.TEXT;
                             bool isDeletedUser =
                                 chatroom.members!.first.id == '';
-                            return ListTile(
-                              leading: Hero(
-                                tag: chatroom.id!,
-                                child: KCircularCacheImg(
-                                    imgPath:
-                                        chatroom.members!.first.profilePicture,
-                                    radius: 50),
-                              ),
-                              title: Text(
-                                "${chatroom.members?.first.firstName} ${chatroom.members?.first.lastName}",
-                                style: TextStyle(
-                                    decoration: isDeletedUser
-                                        ? TextDecoration.lineThrough
-                                        : null),
-                              ),
-                              subtitle: (chatroom.messages != null &&
-                                          chatroom.messages!.isNotEmpty) ||
-                                      isMediaMsg
-                                  ? buildRecentMessage(
-                                      chatroom.messages!.first, isMediaMsg)
-                                  : Text(
-                                      'Start Chatting'.tr,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                            return Slidable(
+                              endActionPane: ActionPane(
+                                motion: const DrawerMotion(),
+                                extentRatio: 0.2,
                                 children: [
-                                  if (chatroom.unreadCount != null &&
-                                      chatroom.unreadCount! > 0)
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: const BoxDecoration(
+                                  Expanded(
+                                    child: InkWell(
+                                      onTap: () async {
+                                        if (await DeleteChatConfirmationDialog
+                                            .confirm(context)) {
+                                          cntrlr.deleteChatRoom(chatroom);
+                                        }
+                                      },
+                                      child: Ink(
+                                        height: double.maxFinite,
                                         color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Text(
-                                        chatroom.unreadCount.toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 12),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                  Text(chatroom.updatedAt.timeAgo),
+                                  ),
                                 ],
                               ),
-                              onTap: () => Get.to(
-                                () => MessageView(chatroom: chatroom),
-                                arguments: chatroom.id,
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(),
+                                leading: Hero(
+                                  tag: chatroom.id!,
+                                  child: KCircularCacheImg(
+                                      imgPath: chatroom
+                                          .members!.first.profilePicture,
+                                      radius: 50),
+                                ),
+                                title: Text(
+                                  "${chatroom.members?.first.firstName} ${chatroom.members?.first.lastName}",
+                                  style: TextStyle(
+                                      decoration: isDeletedUser
+                                          ? TextDecoration.lineThrough
+                                          : null),
+                                ),
+                                subtitle: (chatroom.messages != null &&
+                                            chatroom.messages!.isNotEmpty) ||
+                                        isMediaMsg
+                                    ? buildRecentMessage(
+                                        chatroom.messages!.first, isMediaMsg)
+                                    : Text(
+                                        'Start Chatting'.tr,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (chatroom.unreadCount != null &&
+                                        chatroom.unreadCount! > 0)
+                                      Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          chatroom.unreadCount.toString(),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12),
+                                        ),
+                                      ),
+                                    Text(chatroom.updatedAt.timeAgo),
+                                  ],
+                                ),
+                                onTap: () => Get.to(
+                                  () => MessageView(chatroom: chatroom),
+                                  arguments: chatroom.id,
+                                ),
                               ),
                             );
                           },

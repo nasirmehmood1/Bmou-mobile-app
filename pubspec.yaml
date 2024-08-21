@@ -58,6 +58,7 @@ dependencies:
   firebase_crashlytics: ^3.5.7
   firebase_analytics: ^10.10.7
   flutter_ringtone_manager: ^1.1.2
+  flutter_slidable: ^3.1.1
 
 dev_dependencies:
   flutter_test:

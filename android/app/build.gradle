@@ -29,7 +29,7 @@ if (flutterVersionName == null) {
    }
 
    android {
-    namespace "app.bumoumobile.com"
+    namespace "com.bumou.app"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -47,7 +47,7 @@ if (flutterVersionName == null) {
     }
 
     defaultConfig {
-        applicationId "app.bumoumobile.com"
+        applicationId "com.bumou.app"
         minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -82,6 +82,7 @@ flutter {
 dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'com.huawei.hms:push:6.3.0.304'
+    implementation 'com.huawei.hms:location:4.0.0.300'
 }
 
 apply plugin: 'com.huawei.agconnect'

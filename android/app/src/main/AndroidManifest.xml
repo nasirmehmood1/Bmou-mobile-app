@@ -43,12 +43,26 @@
     <!-- <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> -->
     <!-- <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" /> -->
+
+
+
     <application
         android:label="@string/appName"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
+
+
+        <service
+            android:name="com.huawei.hms.flutter.push.hms.FlutterHmsMessageService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -65,6 +79,7 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
