@@ -44,6 +44,7 @@ Future<void> main() async {
   });
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+
   OneSignal.initialize("d7785c40-cb60-4c08-bf09-d64a59dc0066");
 
   runApp(const MyApp());

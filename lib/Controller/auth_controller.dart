@@ -123,7 +123,7 @@ class AuthController extends GetxController {
   Future<void> checkAuth() async {
     try {
       String? accessToken = LocalStorage.getAccessToken;
-      log(accessToken.toString());
+      // log("Access token ->$accessToken");
       if (accessToken != null) {
         var response = await NetworkClient.get(Apis.getCurrentUser);
         Logger.message(

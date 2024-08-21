@@ -69,7 +69,7 @@ class _LandingViewState extends State<LandingView> {
     });
     await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
         .then((value) {
-      debugPrint('OneSignal Login');
+      log('OneSignal Login ${OneSignal.User.pushSubscription.token}');
       // if (Get.find<AuthController>().user?.email != null) {
       //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
       // }
