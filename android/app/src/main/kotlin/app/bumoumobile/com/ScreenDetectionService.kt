@@ -45,10 +45,8 @@ class ScreenDetectionService : Service() {
             .setSmallIcon(R.mipmap.ic_launcher) // Replace with your app's notification icon
             .build()
 
-        // Start the service in the foreground
         startForeground(1, notification)
 
-        // Initialize and register the BroadcastReceiver
         screenDetectionBroadcast = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent != null) {
@@ -59,12 +57,10 @@ class ScreenDetectionService : Service() {
                             Handler(Looper.getMainLooper()).post {
                                 // Check if context is not null
                                 context?.let {
-                                    // Launch the activity
                                     val activityIntent = Intent(context.applicationContext, ModeDetectionActivity::class.java)
                                     activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     it.startActivity(activityIntent)
 
-                                    // Show a Toast message
                                     Toast.makeText(it, "Activity Launched", Toast.LENGTH_SHORT).show()
                                 }
                             }
