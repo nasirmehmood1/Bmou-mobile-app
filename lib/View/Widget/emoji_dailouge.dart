@@ -7,20 +7,18 @@ import 'package:get/get.dart';
 import '../../Constants/color.dart';
 
 class Emoji {
-  static List<String> message = [
-    'Keep this good mood and the day will be smooth.',
-    'Smile at yourself, something good may be will happen.',
-    'Don\'t care about the bad things, try to look towards the good things.',
-    'What happened? Do you want a hug? Tell me, let\'s disscuss what to do together.',
-    'This is wonderful. Do you want to share it and make everyone happy for you?',
-  ];
-  static void showEmojiDailouge(BuildContext context, {required String image, required int index, required String mood}) {
+  static void showEmojiDailouge(
+    BuildContext context, {
+    required int index,
+    required Map<String, dynamic> mood,
+  }) {
     final TextEditingController noteController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     bool isValidated = false;
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
         elevation: 0.0,
         backgroundColor: AppColors.white,
         child: SizedBox(
@@ -30,16 +28,20 @@ class Emoji {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset(image),
+                SvgPicture.asset(mood['image']),
                 const SizedBox(height: 15),
-                Text(message[index].tr, style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
+                Text(mood["message"].toString().tr,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 15),
                 Form(
                   key: formKey,
                   child: TextFormField(
                     controller: noteController,
                     keyboardType: TextInputType.text,
-                    autovalidateMode: isValidated == true ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+                    autovalidateMode: isValidated == true
+                        ? AutovalidateMode.onUserInteraction
+                        : AutovalidateMode.disabled,
                     decoration: InputDecoration(hintText: 'Type Here'.tr),
                   ),
                 ),
@@ -48,7 +50,8 @@ class Emoji {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 60.0)),
+                        style: FilledButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 60.0)),
                         onPressed: () => Get.back(),
                         child: Text('Cancel'.tr),
                       ),
@@ -56,7 +59,8 @@ class Emoji {
                     const SizedBox(width: 10),
                     Expanded(
                       child: FilledButton(
-                        style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 60.0)),
+                        style: FilledButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 60.0)),
                         onPressed: () {
                           isValidated = true;
                           if (formKey.currentState!.validate()) {
@@ -65,8 +69,10 @@ class Emoji {
                                 await MoodController.to
                                     .addMood(
                                       context,
-                                      mood: mood.replaceAll(' ', ''),
-                                      note: noteController.text == '' ? null : noteController.text,
+                                      mood: mood['mood'].replaceAll(' ', ''),
+                                      note: noteController.text == ''
+                                          ? null
+                                          : noteController.text,
                                     )
                                     .then(
                                       (value) => Get.back(),

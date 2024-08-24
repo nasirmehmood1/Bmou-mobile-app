@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:app/Constants/api.dart';
-import 'package:app/Controller/auth_controller.dart';
 import 'package:app/Controller/chats/chat_controller.dart';
 import 'package:app/Data/Network/request_client.dart';
 import 'package:app/Model/chats/chat_message.dart';
@@ -10,6 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../Utils/comon.dart';
+import '../auth_controller.dart';
 
 class ChatMessagesController extends GetxController {
   List<ChatMessage> allMessages = [];
@@ -37,7 +37,6 @@ class ChatMessagesController extends GetxController {
         allMessages = (response.data as List)
             .map((e) => ChatMessage.fromJson(e))
             .toList();
-
         _markAllMessagesAsRead();
       }
     } on DioException catch (e) {

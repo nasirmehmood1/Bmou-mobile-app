@@ -123,7 +123,7 @@ class AuthController extends GetxController {
   Future<void> checkAuth() async {
     try {
       String? accessToken = LocalStorage.getAccessToken;
-      // log("Access token ->$accessToken");
+      log(accessToken.toString());
       if (accessToken != null) {
         var response = await NetworkClient.get(Apis.getCurrentUser);
         Logger.message(
@@ -308,13 +308,12 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
+      Get.find<ChatController>().disconnectSocket();
       await OneSignal.logout();
       await LocalStorage.clearAuth();
       user = null;
       update();
-      if (Get.isRegistered<ChatController>()) {
-        Get.find<ChatController>().socket.disconnect();
-      }
+
       await Get.deleteAll(force: true).then(
         (value) => log("All routes deleted"),
       );

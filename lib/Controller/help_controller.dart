@@ -108,9 +108,12 @@ class HelpController extends GetxController {
       isLoadingOngoing = true;
       update();
       final resp = await NetworkClient.get(Apis.getOngoingHelp);
-      log("getOngoingHelp: ${resp.statusCode}");
+      log("getOngoingHelp ++++: ${resp.statusCode}");
+      log("data ++++: ${resp.data.last}");
+
       if (resp.statusCode == 200) {
         if (resp.data != null && resp.data.isNotEmpty) {
+          resp.data.map((x) => print(x));
           ongoingHelps = List<HelpModel>.from(
             resp.data.map((x) => HelpModel.fromJson(x)).toList(),
           );
@@ -150,6 +153,31 @@ class HelpController extends GetxController {
     } catch (e) {
       if (context.mounted) Common.showErrorDialog(context, e: e.toString());
     } finally {
+      update();
+    }
+  }
+
+  deleteHelp(HelpModel help) async {
+    try {
+      isLoadingOngoing = true;
+      errorMessage = null;
+      update();
+      final resp = await NetworkClient.delete("${Apis.deleteHelp}/${help.id}");
+
+      if (resp.statusCode == 200) {
+        await getOngoingHelp();
+        Get.snackbar("帮助 删除成功".tr, "");
+      } else {
+        errorMessage = resp.data['message'];
+      }
+    } on DioException catch (e) {
+      currentHelp = null;
+      debugPrint("deleteHelp: ${Common.getErrorMsgOfDio(e)}");
+    } catch (e) {
+      currentHelp = null;
+      debugPrint("deleteHelp: $e");
+    } finally {
+      isLoadingOngoing = false;
       update();
     }
   }
@@ -207,5 +235,10 @@ class HelpController extends GetxController {
       Common.showErrorDialog(Get.context!, e: e.toString());
       // rethrow;
     } finally {}
+  }
+
+  sortOngoingHelp() {
+    ongoingHelps.sort((a, b) =>
+        b.messages.first.updatedAt.compareTo(a.messages.first.updatedAt));
   }
 }

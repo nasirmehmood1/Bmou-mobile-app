@@ -2,6 +2,7 @@ import 'package:app/Constants/color.dart';
 import 'package:app/Controller/help_controller.dart';
 import 'package:app/Data/Local/hive_storage.dart';
 import 'package:app/Utils/datetime.dart';
+import 'package:app/View/Help/components/delete_help_confirmation_dialog.dart';
 import 'package:app/View/Help/help_chat_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,7 @@ class _OngoingRequestsViewState extends State<OngoingRequestsView> {
   Widget build(BuildContext context) {
     return GetBuilder<HelpController>(builder: (controller) {
       Widget content;
+
       if (controller.isLoadingOngoing) {
         content = const Center(
           child: CircularProgressIndicator(),
@@ -61,6 +63,7 @@ class _OngoingRequestsViewState extends State<OngoingRequestsView> {
           ),
         );
       } else {
+        controller.sortOngoingHelp();
         content = CustomScrollView(
           slivers: [
             SliverPadding(
@@ -82,51 +85,73 @@ class _OngoingRequestsViewState extends State<OngoingRequestsView> {
                             ? Colors.green[100]
                             : Colors.blue[100],
                         child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          // onLongPress: () async {},
                           onTap: () {
                             Get.to(
                               () => HelpChatView(help: help),
                               arguments: help.id,
                             );
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        username,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        message.type == "JOIN"
-                                            ? "${message.sender.username} ${"joined the chat".tr}"
-                                            : message.message != null
-                                                ? message.message!
-                                                : "",
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Text(
-                                          help.updatedAt.timeAgo,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
+                          child: Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            username,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle: FontStyle.italic,
+                                            ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            message.type == "JOIN"
+                                                ? "${message.sender.username} ${"joined the chat".tr}"
+                                                : message.message != null
+                                                    ? message.message!
+                                                    : "",
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              help.messages.first.updatedAt
+                                                  .timeAgo,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              Positioned(
+                                  right: 0,
+                                  child: IconButton(
+                                    onPressed: () async {
+                                      if (await DeleteHelpConfirmationDialog
+                                          .confirm(context)) {
+                                        controller.deleteHelp(help);
+                                      }
+                                    },
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                  )),
+                            ],
                           ),
                         ),
                       ),

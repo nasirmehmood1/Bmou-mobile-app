@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:app/Constants/api.dart';
 import 'package:app/Controller/chats/chat_messages_controller.dart';
@@ -13,10 +11,11 @@ import 'package:app/Model/chats/chatroom.dart';
 import 'package:app/Utils/comon.dart';
 import 'package:app/Utils/loading_overlays.dart';
 import 'package:app/Utils/logging.dart';
-import 'package:app/View/Chat/all_chat.dart';
+import 'package:app/View/Chat/call_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_manager/flutter_ringtone_manager.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:socket_io_client/socket_io_client.dart';
@@ -30,15 +29,29 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    log("chat controller called....");
     connectSocket();
     getAllChatrooms();
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    disconnectSocket();
+    super.onClose();
+    log("on close called,");
+  }
+
+  void attachEventListeners() {
+    connectionData();
+    receiveMessage();
+    receiveHelpRequests();
+    listenHelpRequestRemove();
+    listenHelpMessage();
+  }
+
   void connectSocket() {
     try {
-      log("Connecting Chat Room Socket");
-
       socket = io.io(
         Apis.socketUrl,
         OptionBuilder()
@@ -49,26 +62,28 @@ class ChatController extends GetxController {
       );
 
       socket.onConnect((data) {
-        if (isListeningEvents) {
-          return;
-        }
-        connectionData();
-        receiveMessage();
-        receiveHelpRequests();
-        listenHelpRequestRemove();
-        listenHelpMessage();
-        // receiveHelps();
-        // onNewCall();
         log("🚀 Socket Connected: $data");
-        if (!isListeningEvents) isListeningEvents = true;
+        if (!isListeningEvents) {
+          log("🚀 LISTENERS INITIALIZED CALLED $data");
+          attachEventListeners();
+          isListeningEvents = true;
+        }
       });
 
-      socket.onDisconnect((_) => log('disconnect: $_'));
+      socket.onDisconnect((_) {
+        log('disconnect: $_');
+        _removeAllListeners();
+        isListeningEvents = false;
+      });
       socket.onReconnectAttempt((_) => log('reconnecting: $_'));
-      socket.onReconnect((_) => log('reconnect: $_'));
+      socket.onReconnect((_) {
+        log('reconnected: $_');
+        if (!isListeningEvents) {
+          attachEventListeners();
+          isListeningEvents = true;
+        }
+      });
       socket.onConnectError((_) => log('connect_timeout: $_'));
-
-      log("====== Socket Connected: ${socket.connected} ======");
       socket.onError((data) {
         log("onError: $data");
         update(['connection']);
@@ -88,9 +103,106 @@ class ChatController extends GetxController {
     }
   }
 
+  deleteChatRoom(Chatroom chatroom) async {
+    try {
+      isLoading = true;
+      update();
+
+      log("URL --> ${Apis.chatrooms}/${chatroom.id}");
+
+      final response =
+          await NetworkClient.delete("${Apis.chatrooms}/${chatroom.id}");
+
+      // Logger.message("Get All Chatrooms: ${response.statusCode}}");
+      if (response.statusCode == 200) {
+        await getAllChatrooms();
+        Get.snackbar(
+          "Chat Deleted successfully.".tr,
+          "",
+        );
+      }
+    } on DioException catch (e) {
+      Logger.error("Delete ChatRoom Error: ${Common.getErrorMsgOfDio(e)}");
+    } catch (e) {
+      Logger.error("-get-all-chatrooms- Error: $e");
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+  // void connectSocket() {
+  //   log("CONNECTING SOCKET +++++");
+  //   try {
+  //     socket = io.io(
+  //       Apis.socketUrl,
+  //       OptionBuilder()
+  //           .setTransports(['websocket'])
+  //           .setExtraHeaders({'Authorization': LocalStorage.getAccessToken})
+  //           .enableAutoConnect()
+  //           .build(),
+  //     );
+  //     log("ACCESS TOKEN ${LocalStorage.getAccessToken} +++++");
+  //     socket.onConnect((data) {
+  //       if (isListeningEvents) {
+  //         return;
+  //       }
+  //       connectionData();
+  //       receiveMessage();
+  //       receiveHelpRequests();
+  //       listenHelpRequestRemove();
+  //       listenHelpMessage();
+  //       // receiveHelps();
+  //       // onNewCall();
+  //       log("🚀 Socket Connected: $data");
+  //       if (!isListeningEvents) isListeningEvents = true;
+  //     });
+  //
+  //     socket.onDisconnect((_) =>(){
+  //       log('disconnect: $_');
+  //       isListeningEvents=false;
+  //     });
+  //     socket.onReconnectAttempt((_) => log('reconnecting: $_'));
+  //     socket.onReconnect((_) => log('reconnect: $_'));
+  //     socket.onConnectError((_) => log('connect_timeout: $_'));
+  //
+  //     log("====== Socket Connected: ${socket.connected} ======");
+  //     socket.onError((data) {
+  //       log("onError: $data");
+  //       update(['connection']);
+  //     });
+  //     socket.onConnectError((data) {
+  //       log("onConnectError: $data");
+  //       update(['connection']);
+  //     });
+  //     socket.onReconnectError((data) {
+  //       log("onReconnectError: $data");
+  //       update(['connection']);
+  //     });
+  //
+  //     log("Is Socket Connected: ${socket.connected}");
+  //   } catch (e) {
+  //     log("Socket Connection Error: $e");
+  //   }
+  // }
+
+  _removeAllListeners() {
+    socket.clearListeners();
+    // Remove all listeners to avoid duplication
+    socket.off("chat");
+    socket.off("help-request");
+    socket.off("help-message");
+    socket.off("help-request-remove");
+    socket.off("connection");
+  }
+
   void disconnectSocket() {
     try {
+      socket.dispose();
+      socket.close();
+      _removeAllListeners();
       socket.disconnect();
+      isListeningEvents = false; // Reset the flag
+      log("Socket disconnected and listeners removed");
     } catch (e) {
       log("Socket Disconnection Error: $e");
     }
@@ -277,37 +389,38 @@ class ChatController extends GetxController {
     }
   }
 
-  // dynamic incomingSDPOffer;
+  dynamic incomingSDPOffer;
 
-  // void onNewCall() {
-  //   try {
-  //     socket.on("newCall", (data) {
-  //       log("📱 On -call-: $data");
-  // FlutterRingtonePlayer().playRingtone(looping: true);
-  // incomingSDPOffer = data;
-  // Get.snackbar(
-  //   "Incoming Call",
-  //   "Incoming Call",
-  //   isDismissible: false,
-  //   duration: const Duration(seconds: 60),
-  //   mainButton: TextButton(
-  //     onPressed: () {
-  //       FlutterRingtonePlayer().stop();
-  //       if (Get.currentRoute != '/CallScreen') {
-  //         Get.closeCurrentSnackbar();
-  //         log("CallerID: ${data['callerId']}, CalleeID: ${data['calleeId']}");
-  //         Get.to(() => CallScreen(
-  //             callerId: data['calleeId'], calleeId: data['callerId']));
-  //       }
-  //     },
-  //     child: const Text("Accept"),
-  //   ),
-  // );
-  //     });
-  //   } catch (e) {
-  //     log("-call- Error: $e");
-  //   }
-  // }
+  void onNewCall() {
+    log("making call...");
+    try {
+      socket.on("newCall", (data) {
+        log("📱 On -call-: $data");
+        FlutterRingtonePlayer().playRingtone(looping: true);
+        incomingSDPOffer = data;
+        Get.snackbar(
+          "Incoming Call",
+          "Incoming Call",
+          isDismissible: false,
+          duration: const Duration(seconds: 60),
+          mainButton: TextButton(
+            onPressed: () {
+              FlutterRingtonePlayer().stop();
+              if (Get.currentRoute != '/CallScreen') {
+                Get.closeCurrentSnackbar();
+                log("CallerID: ${data['callerId']}, CalleeID: ${data['calleeId']}");
+                Get.to(() => CallScreen(
+                    callerId: data['calleeId'], calleeId: data['callerId']));
+              }
+            },
+            child: const Text("Accept"),
+          ),
+        );
+      });
+    } catch (e) {
+      log("-call- Error: $e");
+    }
+  }
 
   void connectionData() {
     try {
@@ -320,12 +433,10 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> getAllChatrooms({bool shouldShowLoading = true}) async {
+  Future<void> getAllChatrooms() async {
     try {
-      if (shouldShowLoading) {
-        isLoading = true;
-        update();
-      }
+      isLoading = true;
+      update();
       final response = await NetworkClient.get(
           "${Apis.chatrooms}?page=$page&pageSize=$pageSize");
       Logger.message("Get All Chatrooms: ${response.statusCode}}");
@@ -355,34 +466,6 @@ class ChatController extends GetxController {
   //     log("Send Help Message Error: $e");
   //   }
   // }
-
-  deleteChatRoom(Chatroom chatroom) async {
-    try {
-      isLoading = true;
-      update();
-
-      log("URL --> ${Apis.chatrooms}/${chatroom.id}");
-
-      final response =
-          await NetworkClient.delete("${Apis.chatrooms}/${chatroom.id}");
-
-      // Logger.message("Get All Chatrooms: ${response.statusCode}}");
-      if (response.statusCode == 200) {
-        await getAllChatrooms();
-        Get.snackbar(
-          "Chat Deleted successfully.",
-          "",
-        );
-      }
-    } on DioException catch (e) {
-      Logger.error("Delete ChatRoom Error: ${Common.getErrorMsgOfDio(e)}");
-    } catch (e) {
-      Logger.error("-get-all-chatrooms- Error: $e");
-    } finally {
-      isLoading = false;
-      update();
-    }
-  }
 
   List<Chatroom> allChatrooms = [];
   String? chatroomErrorMsg;

@@ -38,12 +38,17 @@ class _EmojiViewState extends State<EmojiView> {
                         children: [
                           InkWell(
                             onTap: () {
-                              Emoji.showEmojiDailouge(context, image: image, index: index, mood: mood);
+                              Emoji.showEmojiDailouge(
+                                context,
+                                index: index,
+                                mood: AppAssets().mood[index],
+                              );
                             },
                             child: SvgPicture.asset(image),
                           ),
                           const SizedBox(height: 10),
-                          Text(mood.tr, style: Theme.of(context).textTheme.titleMedium),
+                          Text(mood.tr,
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(height: 10),
                         ],
                       ),

@@ -26,8 +26,7 @@ class HelpMessagesController extends GetxController {
     try {
       isLoading = true;
       update();
-      final response =
-          await NetworkClient.get('${Apis.getHelpMessages}/${Get.arguments}');
+      final response = await NetworkClient.get('${Apis.getHelpMessages}/${Get.arguments}');
       Logger.message("Get Help Messages: ${response.statusCode}");
       Logger.message("Get Help Messages: ${response.data}");
 

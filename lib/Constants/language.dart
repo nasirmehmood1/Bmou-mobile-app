@@ -276,6 +276,12 @@ class LocaleString extends Translations {
           "message": "消息",
           "New Help Request": "新帮助请求",
           "Please accept the help requests": "请接受帮助请求",
+          "Are you sure you want to delete this chat?": "您确定要删除此聊天吗？",
+          "Chat Deleted successfully": "聊天已成功删除。",
+          "Help Deleted successfully": "聊天已成功删除。",
+          "Are you sure you want to delete this ongoing help?": "您确定要删除此持续帮助吗？",
+          "What happened? Do you want a hug? Tell me, let's discuss what to do together.":
+              "很不好：发生了什么事？给你的一个大大的拥抱，告诉我，让我们一起解决吧。"
         },
       };
 }

@@ -8,6 +8,8 @@ import 'package:app/Utils/datetime.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../Widget/custom_text_long_press_widget.dart';
+
 class HelpChatView extends StatefulWidget {
   final HelpModel help;
   const HelpChatView({super.key, required this.help});
@@ -192,9 +194,12 @@ class HelpMessageBubble extends StatelessWidget {
                   ? CrossAxisAlignment.end
                   : CrossAxisAlignment.start,
               children: [
-                Text(
-                  message.message ?? "${message.type} ${"message".tr}",
+                CustomTextLongPressWidget(
+                  message:  message.message ?? "${message.type} ${"message".tr}",
                 ),
+                // Text(
+                //   message.message ?? "${message.type} ${"message".tr}",
+                // ),
                 const SizedBox(height: 5),
                 Align(
                   alignment: isMyMessage

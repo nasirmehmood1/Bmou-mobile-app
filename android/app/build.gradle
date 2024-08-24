@@ -70,6 +70,7 @@ if (flutterVersionName == null) {
             minifyEnabled = true
             shrinkResources = true
             signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
        }
    }
 
@@ -84,7 +85,6 @@ dependencies {
     // implementation 'com.huawei.hms:base:6.5.0.300'
     implementation 'com.huawei.agconnect:agconnect-core:1.5.2.300'
     implementation 'com.huawei.hms:push:6.3.0.304'
-    implementation 'com.huawei.hms:location:4.0.0.300'
 }
 
 apply plugin: 'com.huawei.agconnect'

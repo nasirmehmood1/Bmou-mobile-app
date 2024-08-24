@@ -1,9 +1,3 @@
-import 'package:app/Constants/language.dart';
-import 'package:app/Constants/theme.dart';
-import 'package:app/Data/Local/hive_storage.dart';
-import 'package:app/Model/ip_data.dart';
-import 'package:app/View/Splash/splash.dart';
-import 'package:app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +6,13 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+
+import 'Constants/language.dart';
+import 'Constants/theme.dart';
+import 'Data/Local/hive_storage.dart';
+import 'Model/ip_data.dart';
+import 'View/Splash/splash.dart';
+import 'firebase_options.dart';
 
 IPData? ipData;
 
@@ -44,7 +45,6 @@ Future<void> main() async {
   });
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-
   OneSignal.initialize("d7785c40-cb60-4c08-bf09-d64a59dc0066");
 
   runApp(const MyApp());

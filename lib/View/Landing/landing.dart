@@ -30,9 +30,10 @@ class LandingView extends StatefulWidget {
   State<LandingView> createState() => _LandingViewState();
 }
 
-class _LandingViewState extends State<LandingView> {
+class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     Get.put(FriendController(), permanent: true);
     Get.put(MoodController());
     Get.put(MommentController());
@@ -69,7 +70,8 @@ class _LandingViewState extends State<LandingView> {
     });
     await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
         .then((value) {
-      log('OneSignal Login ${OneSignal.User.pushSubscription.token}');
+      debugPrint(
+          'OneSignal Login ===> ${Get.find<AuthController>().user?.id ?? "unknown-user"}');
       // if (Get.find<AuthController>().user?.email != null) {
       //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
       // }
@@ -103,9 +105,29 @@ class _LandingViewState extends State<LandingView> {
     isListenAdded = true;
   }
 
+  _initializeNotification() async {
+    // NotificationService notificationService=AwesomeNotificationService();
+    // await notificationService.initialize();
+    // notificationService.showNotification("Title", "Body",[
+    //   "assets/bitmap/verybad.png",
+    //   "assets/bitmap/verybad.png",
+    //   "assets/bitmap/verybad.png",
+    //   "assets/bitmap/verybad.png",
+    //   "assets/bitmap/verybad.png",
+    // ],["Good","bad","wores","helo","he"]);
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    debugPrint("Current state : $state");
+    _initializeNotification();
+  }
+
   @override
   void dispose() {
     OneSignal.Notifications.removeClickListener((event) {});
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

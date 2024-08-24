@@ -20,6 +20,7 @@ import 'package:app/View/Widget/video_screen.dart';
 import 'package:app/View/Widget/video_thumbnail_widget.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
@@ -30,9 +31,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../Data/Local/hive_storage.dart';
+import '../Widget/custom_text_long_press_widget.dart';
+import 'call_view.dart';
 
 class MessageView extends StatefulWidget {
   const MessageView({super.key, required this.chatroom});
+
   final Chatroom chatroom;
 
   @override
@@ -41,6 +45,7 @@ class MessageView extends StatefulWidget {
 
 class _MessageViewState extends State<MessageView> {
   final TextEditingController msgController = TextEditingController();
+
   // AnimationController? controller;
   RecorderController recordCntrlr = RecorderController();
 
@@ -109,20 +114,20 @@ class _MessageViewState extends State<MessageView> {
           ),
         ),
         actions: [
-          if (!isDeletedUser) ...[
-            // IconButton(
-            //   onPressed: () {
-            //     Get.to(() => const CallView());
-            //   },
-            //   icon: const Icon(Icons.call),
-            // ),
-            // IconButton(
-            //   onPressed: () {
-            //     Get.to(() => const CallView());
-            //   },
-            //   icon: const Icon(Icons.video_call),
-            // ),
-          ]
+          // if (!isDeletedUser) ...[
+          //   IconButton(
+          //     onPressed: () {
+          //       Get.find<ChatController>().onNewCall();
+          //     },
+          //     icon: const Icon(Icons.call),
+          //   ),
+          //   IconButton(
+          //     onPressed: () {
+          //
+          //     },
+          //     icon: const Icon(Icons.video_call),
+          //   ),
+          // ]
         ],
       ),
       body: Column(
@@ -404,6 +409,7 @@ class _MessageViewState extends State<MessageView> {
 class MessageBubble extends StatelessWidget {
   const MessageBubble(
       {super.key, required this.message, required this.chatroom});
+
   final ChatMessage message;
   final Chatroom chatroom;
 
@@ -453,19 +459,106 @@ class MessageBubble extends StatelessWidget {
                               : const SizedBox()
                   : const SizedBox(),
               message.message != null && message.message != ''
-                  ? SelectableAutoLinkText(
-                      message.message ?? "***",
-                      linkStyle: const TextStyle(color: Colors.blueAccent),
-                      highlightedLinkStyle: TextStyle(
-                        color: Colors.blueAccent,
-                        backgroundColor: Colors.blueAccent.withAlpha(0x33),
-                      ),
-                      onTap: (url) => launchUrl(Uri.parse(url)),
-                      onLongPress: (url) => Share.share(url),
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: isMe ? AppColors.white : AppColors.black,
-                          ),
-                    )
+                  ? CustomTextLongPressWidget(
+                message:    message.message ?? "***",
+                textStyle:Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: isMe ? AppColors.white : AppColors.black,
+                ),
+              )
+              // SelectableAutoLinkText(
+              //         message.message ?? "***",
+              //         linkStyle: const TextStyle(color: Colors.blueAccent),
+              //         highlightedLinkStyle: TextStyle(
+              //           color: Colors.blueAccent,
+              //           backgroundColor: Colors.blueAccent.withAlpha(0x33),
+              //         ),
+              //         onTap: (url) => launchUrl(Uri.parse(url)),
+              //         onLongPress: (url) => Share.share(url),
+              //         contextMenuBuilder: (context, editableTextState) {
+              //           final TextEditingValue value =
+              //               editableTextState.textEditingValue;
+              //           final List<ContextMenuButtonItem> buttonItems = [];
+              //           buttonItems.insertAll(
+              //             0,
+              //             [
+              //               ContextMenuButtonItem(
+              //                 label: '举报',
+              //                 onPressed: () {
+              //                   // Implement your logic for handling "举报" here
+              //                   // This example shows a simple dialog
+              //                   showDialog(
+              //                     context: context,
+              //                     builder: (BuildContext context) {
+              //                       return AlertDialog(
+              //                         title: const Text('举报'),
+              //                         content: const Text('您确定要举报此内容吗？'),
+              //                         actions: [
+              //                           TextButton(
+              //                             onPressed: () {
+              //                               Navigator.pop(context);
+              //                               ScaffoldMessenger.of(context)
+              //                                   .showSnackBar(
+              //                                 SnackBar(
+              //                                   content: Text('内容已举报.'),
+              //                                 ),
+              //                               );
+              //                             },
+              //                             child: Text('取消'),
+              //                           ),
+              //                           TextButton(
+              //                             onPressed: () {
+              //                               // Add your actual reporting logic here
+              //                               Navigator.pop(context);
+              //                             },
+              //                             child: Text('确定'),
+              //                           ),
+              //                         ],
+              //                       );
+              //                     },
+              //                   );
+              //                 },
+              //               ),
+              //               ContextMenuButtonItem(
+              //                 label: '复制',
+              //                 onPressed: () {
+              //                   if (value.selection.baseOffset !=
+              //                       value.selection.extentOffset) {
+              //                     final selectedText =
+              //                         value.selection.baseOffset !=
+              //                                 value.selection.extentOffset
+              //                             ? value.text.substring(
+              //                                 value.selection.baseOffset,
+              //                                 value.selection.extentOffset)
+              //                             : '';
+              //                     final clipboard =
+              //                         ClipboardData(text: selectedText);
+              //                     Clipboard.setData(clipboard);
+              //                   }
+              //                   //   editableTextState.selectAll(SelectionChangedCause.forcePress);
+              //                   // // Access the selected text and copy it to clipboard
+              //                   // final clipboard = ClipboardData(text: value.text);
+              //                   // Clipboard.setData(clipboard);
+              //                 },
+              //               ),
+              //               ContextMenuButtonItem(
+              //                 label: '分享',
+              //                 onPressed: () {
+              //                   // Share the selected text (replace with your sharing logic)
+              //                   final textToShare = value.text;
+              //                   Share.share(textToShare);
+              //                 },
+              //               ),
+              //             ],
+              //           );
+              //           return AdaptiveTextSelectionToolbar.buttonItems(
+              //             anchors: editableTextState.contextMenuAnchors,
+              //             buttonItems: buttonItems,
+              //           );
+              //         },
+              //         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              //               color: isMe ? AppColors.white : AppColors.black,
+              //             ),
+              //       )
                   : const SizedBox(),
             ],
           ),

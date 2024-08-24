@@ -45,6 +45,8 @@ class Apis {
   static const String markRead = '$baseUrl/chat/mark-read';
   //help
   static const String askHelp = '$baseUrl/help/ask';
+  static const String deleteHelp = '$baseUrl/help/delete';
+
   static const String incomingHelps = '$baseUrl/help/incoming-requests';
   static const String myPendingHelp = '$baseUrl/help/my-pending';
   static const String getHelpMessages = '$baseUrl/help/messages';
