@@ -1,29 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Permissions options for the `storage` group -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <!-- Read storage permission for Android 12 and lower -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Permissions options for the `storage` group -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Read storage permission for Android 12 and lower -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <!--
       Granular media permissions for Android 13 and newer.
       See https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions
       for more information.
     -->
+
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-
-    <!-- Permissions options for the `camera` group -->
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <!-- Permissions options for the `location` group -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> <!-- Permissions options for the `camera` group -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Permissions options for the `location` group -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- Permissions options for the `microphone` or `speech` group -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- Permissions options for the `access notification policy` group -->
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Permissions options for the `microphone` or `speech` group -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" /> <!-- Permissions options for the `access notification policy` group -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" /> <!-- Permissions options for the `notification` group -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
 
     <!-- Permissions options for the `notification` group -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -47,9 +45,9 @@
 
 
     <application
-        android:label="@string/appName"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:label="@string/appName"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
 
@@ -64,29 +62,53 @@
 
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ModeDetectionActivity"
             android:exported="true"
+             />
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:exported="true"
+            android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
             <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
         </activity>
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <receiver
+            android:name=".ScreenDetectionBroadcast"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+            </intent-filter>
+        </receiver>
+
+
+
+        <service
+            android:name=".ScreenDetectionService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
+
 </manifest>
