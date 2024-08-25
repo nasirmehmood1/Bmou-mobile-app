@@ -3,15 +3,16 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter()
         maven { url 'https://developer.huawei.com/repo/' }
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.huawei.agconnect:agcp:1.6.5.300'
         // START: FlutterFire Configuration
         classpath 'com.google.gms:google-services:4.3.10'
         // END: FlutterFire Configuration
-        classpath 'com.huawei.agconnect:agcp:1.6.5.300'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -20,6 +21,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        jcenter()
         maven { url 'https://developer.huawei.com/repo/' }
     }
 }

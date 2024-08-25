@@ -20,6 +20,7 @@ import 'package:app/View/Profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:huawei_push/huawei_push.dart';
 import 'package:lottie/lottie.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
@@ -69,9 +70,14 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
       debugPrint('OneSignal Permission Error $e');
     });
     await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
-        .then((value) {
-      debugPrint(
-          'OneSignal Login ===> ${Get.find<AuthController>().user?.id ?? "unknown-user"}');
+        .then((value) async {
+      Push.getTokenStream.listen((t) {
+        print("TOKEN --> $t");
+      }, onError: (e) {
+        print("TOKEN ERROR --> $e");
+      });
+      Push.getToken("");
+
       // if (Get.find<AuthController>().user?.email != null) {
       //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
       // }
