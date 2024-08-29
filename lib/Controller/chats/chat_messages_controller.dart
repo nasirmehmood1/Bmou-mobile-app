@@ -37,7 +37,7 @@ class ChatMessagesController extends GetxController {
         allMessages = (response.data as List)
             .map((e) => ChatMessage.fromJson(e))
             .toList();
-        _markAllMessagesAsRead();
+        // _markAllMessagesAsRead();
       }
     } on DioException catch (e) {
       errorMsg = Common.getErrorMsgOfDio(e);
@@ -51,20 +51,20 @@ class ChatMessagesController extends GetxController {
     }
   }
 
-  _markAllMessagesAsRead() {
-    try {
-      for (int i = 0; i < allMessages.length; i++) {
-        if (!allMessages[i]
-            .readBy
-            .map((e) => e.userId)
-            .contains((Get.find<AuthController>().user!.id))) {
-          markAsRead(chatroomId: Get.arguments, messageId: allMessages[i].id!);
-        }
-      }
-    } catch (e) {
-      // print("MARKING MESSAGES AS READ FAILED --> $e");
-    }
-  }
+  // _markAllMessagesAsRead() {
+  //   try {
+  //     for (int i = 0; i < allMessages.length; i++) {
+  //       if (!allMessages[i]
+  //           .readBy
+  //           .map((e) => e.userId)
+  //           .contains((Get.find<AuthController>().user!.id))) {
+  //         markAsRead(chatroomId: Get.arguments, messageId: allMessages[i].id!);
+  //       }
+  //     }
+  //   } catch (e) {
+  //     // print("MARKING MESSAGES AS READ FAILED --> $e");
+  //   }
+  // }
 
   Future<void> markAsRead({
     required String chatroomId,
@@ -85,11 +85,13 @@ class ChatMessagesController extends GetxController {
 
         final chatController = Get.find<ChatController>();
 
-        for (var element in chatController.allChatrooms) {
+        for (var element in chatController.allChatroom) {
           if (element.id == chatroomId) {
             element.unreadCount = element.unreadCount! - 1;
           }
         }
+
+        chatController.updateBadge();
         chatController.update();
         update();
       }

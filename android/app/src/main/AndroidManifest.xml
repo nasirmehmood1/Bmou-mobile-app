@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="app.bumoumobile.com">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -25,6 +27,23 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!-- Badges Permission -->
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ" tools:node="remove" />
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE" tools:node="remove" />
+    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT" tools:node="remove" />
+    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE" tools:node="remove" />
+    <uses-permission android:name="com.sonymobile.home.permission.PROVIDER_INSERT_BADGE" tools:node="remove" />
+    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT" tools:node="remove" />
+    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE" tools:node="remove" />
+    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" tools:node="remove"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="com.huawei.android.launcher.permission.WRITE_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_APP_BADGE" tools:node="remove" />
+    <uses-permission android:name="com.oppo.launcher.permission.READ_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="com.oppo.launcher.permission.WRITE_SETTINGS" tools:node="remove" />
+
+
 
     <application
         android:name="${applicationName}"
@@ -34,7 +53,11 @@
         android:showWhenLocked="true"
         android:turnScreenOn="true"
         android:usesCleartextTraffic="true">
-        
+
+        <meta-data
+        android:name="push_kit_auto_init_enabled"
+        android:value="true"/>
+
 
 
         <service
@@ -50,6 +73,7 @@
         android:name="com.yalantis.ucrop.UCropActivity"
         android:screenOrientation="portrait"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <!-- END::Image Cropper -->
 
         <activity
             android:name=".MainActivity"
@@ -74,7 +98,6 @@
             android:value="2" />
 
         <meta-data android:name="com.onesignal.preferHMS" android:value="true"/>
-            
 
     </application>
 

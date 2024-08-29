@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:app/Constants/api.dart';
@@ -12,8 +13,10 @@ import 'package:app/Utils/comon.dart';
 import 'package:app/Utils/loading_overlays.dart';
 import 'package:app/Utils/logging.dart';
 import 'package:app/View/Chat/call_screen.dart';
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badge_control/flutter_app_badge_control.dart';
 import 'package:flutter_ringtone_manager/flutter_ringtone_manager.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:get/get.dart';
@@ -323,25 +326,14 @@ class ChatController extends GetxController {
       socket.on("chat", (data) {
         log("On -chat-");
 
-        log("DATA -> ${data}");
+        log("DATA -> ${jsonEncode(data)}");
 
         log("Controller not found: ${Get.arguments}");
-        // final chatroom = allChatrooms.firstWhereOrNull((element) => element.id == data['chatroom']['id']);
         data['chatroom']['members']
             .removeWhere((element) => element['id'] == LocalStorage.getUserId);
         Chatroom newChatRoom = Chatroom.fromJson(data['chatroom']);
 
-        Chatroom? existingChatRoom = allChatrooms
-            .firstWhereOrNull((element) => element.id == newChatRoom.id);
-        if (existingChatRoom != null) {
-          newChatRoom.unreadCount = existingChatRoom.unreadCount != null
-              ? existingChatRoom.unreadCount! + 1
-              : 1;
-        }
-
-        log("Chatroom: ${newChatRoom.id}");
-
-        allChatrooms.removeWhere((element) => element.id == newChatRoom.id);
+        allChatroom.removeWhere((element) => element.id == newChatRoom.id);
 
         if (Get.isRegistered<ChatMessagesController>()) {
           log("Controller found: ${Get.arguments}");
@@ -369,7 +361,7 @@ class ChatController extends GetxController {
           }
         } else {}
 
-        allChatrooms.insert(0, newChatRoom);
+        allChatroom.insert(0, newChatRoom);
         update();
       });
     } catch (e) {
@@ -441,8 +433,11 @@ class ChatController extends GetxController {
           "${Apis.chatrooms}?page=$page&pageSize=$pageSize");
       Logger.message("Get All Chatrooms: ${response.statusCode}}");
       if (response.statusCode == 200) {
-        allChatrooms =
-            (response.data as List).map((e) => Chatroom.fromJson(e)).toList();
+        allChatroom = (response.data as List).map((e) {
+          return Chatroom.fromJson(e);
+        }).toList();
+
+        updateBadge();
       }
     } on DioException catch (e) {
       Logger.error("Get all chatroom exception: ${Common.getErrorMsgOfDio(e)}");
@@ -451,6 +446,23 @@ class ChatController extends GetxController {
     } finally {
       isLoading = false;
       update();
+    }
+  }
+
+  updateBadge() async {
+    // if (await AppBadgePlus.isSupported()) {
+    if (await FlutterAppBadgeControl.isAppBadgeSupported()) {
+      final count = allChatroom.fold(0, (previousValue, element) {
+        if (element.unreadCount == null) return previousValue;
+        return previousValue + element.unreadCount!;
+      });
+
+      if (count == 0) {
+        await FlutterAppBadgeControl.removeBadge();
+      } else {
+        await FlutterAppBadgeControl.updateBadgeCount(count);
+      }
+      log("BADGE APPLIED $count");
     }
   }
 
@@ -467,7 +479,7 @@ class ChatController extends GetxController {
   //   }
   // }
 
-  List<Chatroom> allChatrooms = [];
+  List<Chatroom> allChatroom = [];
   String? chatroomErrorMsg;
   bool isLoading = false;
   bool isLoadMore = false;

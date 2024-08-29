@@ -164,7 +164,7 @@ class _MessageViewState extends State<MessageView> {
                                       return VisibilityDetector(
                                         key: Key(message.id!),
                                         onVisibilityChanged: (info) {
-                                          log("Visibility: ${info.key.toString().replaceAll("[<'", "").replaceAll("'>]", "")}");
+                                          // log("Visibility: ${info.key.toString().replaceAll("[<'", "").replaceAll("'>]", "")}");
                                           if (info.visibleFraction == 0) {
                                             print('not visible');
                                           } else {
@@ -175,7 +175,7 @@ class _MessageViewState extends State<MessageView> {
                                                     .allMessages[index].id!,
                                               );
                                             } else {
-                                              print('Already read');
+                                              // print('Already read');
                                             }
                                           }
                                         },
@@ -460,105 +460,106 @@ class MessageBubble extends StatelessWidget {
                   : const SizedBox(),
               message.message != null && message.message != ''
                   ? CustomTextLongPressWidget(
-                message:    message.message ?? "***",
-                textStyle:Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: isMe ? AppColors.white : AppColors.black,
-                ),
-              )
-              // SelectableAutoLinkText(
-              //         message.message ?? "***",
-              //         linkStyle: const TextStyle(color: Colors.blueAccent),
-              //         highlightedLinkStyle: TextStyle(
-              //           color: Colors.blueAccent,
-              //           backgroundColor: Colors.blueAccent.withAlpha(0x33),
-              //         ),
-              //         onTap: (url) => launchUrl(Uri.parse(url)),
-              //         onLongPress: (url) => Share.share(url),
-              //         contextMenuBuilder: (context, editableTextState) {
-              //           final TextEditingValue value =
-              //               editableTextState.textEditingValue;
-              //           final List<ContextMenuButtonItem> buttonItems = [];
-              //           buttonItems.insertAll(
-              //             0,
-              //             [
-              //               ContextMenuButtonItem(
-              //                 label: '举报',
-              //                 onPressed: () {
-              //                   // Implement your logic for handling "举报" here
-              //                   // This example shows a simple dialog
-              //                   showDialog(
-              //                     context: context,
-              //                     builder: (BuildContext context) {
-              //                       return AlertDialog(
-              //                         title: const Text('举报'),
-              //                         content: const Text('您确定要举报此内容吗？'),
-              //                         actions: [
-              //                           TextButton(
-              //                             onPressed: () {
-              //                               Navigator.pop(context);
-              //                               ScaffoldMessenger.of(context)
-              //                                   .showSnackBar(
-              //                                 SnackBar(
-              //                                   content: Text('内容已举报.'),
-              //                                 ),
-              //                               );
-              //                             },
-              //                             child: Text('取消'),
-              //                           ),
-              //                           TextButton(
-              //                             onPressed: () {
-              //                               // Add your actual reporting logic here
-              //                               Navigator.pop(context);
-              //                             },
-              //                             child: Text('确定'),
-              //                           ),
-              //                         ],
-              //                       );
-              //                     },
-              //                   );
-              //                 },
-              //               ),
-              //               ContextMenuButtonItem(
-              //                 label: '复制',
-              //                 onPressed: () {
-              //                   if (value.selection.baseOffset !=
-              //                       value.selection.extentOffset) {
-              //                     final selectedText =
-              //                         value.selection.baseOffset !=
-              //                                 value.selection.extentOffset
-              //                             ? value.text.substring(
-              //                                 value.selection.baseOffset,
-              //                                 value.selection.extentOffset)
-              //                             : '';
-              //                     final clipboard =
-              //                         ClipboardData(text: selectedText);
-              //                     Clipboard.setData(clipboard);
-              //                   }
-              //                   //   editableTextState.selectAll(SelectionChangedCause.forcePress);
-              //                   // // Access the selected text and copy it to clipboard
-              //                   // final clipboard = ClipboardData(text: value.text);
-              //                   // Clipboard.setData(clipboard);
-              //                 },
-              //               ),
-              //               ContextMenuButtonItem(
-              //                 label: '分享',
-              //                 onPressed: () {
-              //                   // Share the selected text (replace with your sharing logic)
-              //                   final textToShare = value.text;
-              //                   Share.share(textToShare);
-              //                 },
-              //               ),
-              //             ],
-              //           );
-              //           return AdaptiveTextSelectionToolbar.buttonItems(
-              //             anchors: editableTextState.contextMenuAnchors,
-              //             buttonItems: buttonItems,
-              //           );
-              //         },
-              //         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              //               color: isMe ? AppColors.white : AppColors.black,
-              //             ),
-              //       )
+                      message: message.message ?? "***",
+                      textStyle:
+                          Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: isMe ? AppColors.white : AppColors.black,
+                              ),
+                    )
+                  // SelectableAutoLinkText(
+                  //         message.message ?? "***",
+                  //         linkStyle: const TextStyle(color: Colors.blueAccent),
+                  //         highlightedLinkStyle: TextStyle(
+                  //           color: Colors.blueAccent,
+                  //           backgroundColor: Colors.blueAccent.withAlpha(0x33),
+                  //         ),
+                  //         onTap: (url) => launchUrl(Uri.parse(url)),
+                  //         onLongPress: (url) => Share.share(url),
+                  //         contextMenuBuilder: (context, editableTextState) {
+                  //           final TextEditingValue value =
+                  //               editableTextState.textEditingValue;
+                  //           final List<ContextMenuButtonItem> buttonItems = [];
+                  //           buttonItems.insertAll(
+                  //             0,
+                  //             [
+                  //               ContextMenuButtonItem(
+                  //                 label: '举报',
+                  //                 onPressed: () {
+                  //                   // Implement your logic for handling "举报" here
+                  //                   // This example shows a simple dialog
+                  //                   showDialog(
+                  //                     context: context,
+                  //                     builder: (BuildContext context) {
+                  //                       return AlertDialog(
+                  //                         title: const Text('举报'),
+                  //                         content: const Text('您确定要举报此内容吗？'),
+                  //                         actions: [
+                  //                           TextButton(
+                  //                             onPressed: () {
+                  //                               Navigator.pop(context);
+                  //                               ScaffoldMessenger.of(context)
+                  //                                   .showSnackBar(
+                  //                                 SnackBar(
+                  //                                   content: Text('内容已举报.'),
+                  //                                 ),
+                  //                               );
+                  //                             },
+                  //                             child: Text('取消'),
+                  //                           ),
+                  //                           TextButton(
+                  //                             onPressed: () {
+                  //                               // Add your actual reporting logic here
+                  //                               Navigator.pop(context);
+                  //                             },
+                  //                             child: Text('确定'),
+                  //                           ),
+                  //                         ],
+                  //                       );
+                  //                     },
+                  //                   );
+                  //                 },
+                  //               ),
+                  //               ContextMenuButtonItem(
+                  //                 label: '复制',
+                  //                 onPressed: () {
+                  //                   if (value.selection.baseOffset !=
+                  //                       value.selection.extentOffset) {
+                  //                     final selectedText =
+                  //                         value.selection.baseOffset !=
+                  //                                 value.selection.extentOffset
+                  //                             ? value.text.substring(
+                  //                                 value.selection.baseOffset,
+                  //                                 value.selection.extentOffset)
+                  //                             : '';
+                  //                     final clipboard =
+                  //                         ClipboardData(text: selectedText);
+                  //                     Clipboard.setData(clipboard);
+                  //                   }
+                  //                   //   editableTextState.selectAll(SelectionChangedCause.forcePress);
+                  //                   // // Access the selected text and copy it to clipboard
+                  //                   // final clipboard = ClipboardData(text: value.text);
+                  //                   // Clipboard.setData(clipboard);
+                  //                 },
+                  //               ),
+                  //               ContextMenuButtonItem(
+                  //                 label: '分享',
+                  //                 onPressed: () {
+                  //                   // Share the selected text (replace with your sharing logic)
+                  //                   final textToShare = value.text;
+                  //                   Share.share(textToShare);
+                  //                 },
+                  //               ),
+                  //             ],
+                  //           );
+                  //           return AdaptiveTextSelectionToolbar.buttonItems(
+                  //             anchors: editableTextState.contextMenuAnchors,
+                  //             buttonItems: buttonItems,
+                  //           );
+                  //         },
+                  //         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  //               color: isMe ? AppColors.white : AppColors.black,
+                  //             ),
+                  //       )
                   : const SizedBox(),
             ],
           ),

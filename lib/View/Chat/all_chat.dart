@@ -75,12 +75,12 @@ class _ChatRoomViewState extends State<ChatRoomView> {
               ? const Center(child: LoadingWidget())
               : cntrlr.chatroomErrorMsg != null
                   ? Center(child: Text(cntrlr.chatroomErrorMsg!))
-                  : cntrlr.allChatrooms.isEmpty
+                  : cntrlr.allChatroom.isEmpty
                       ? Center(child: Text('No Chatrooms'.tr))
                       : ListView.builder(
-                          itemCount: cntrlr.allChatrooms.length,
+                          itemCount: cntrlr.allChatroom.length,
                           itemBuilder: (context, index) {
-                            Chatroom chatroom = cntrlr.allChatrooms[index];
+                            Chatroom chatroom = cntrlr.allChatroom[index];
                             bool isMediaMsg = chatroom.messages != null &&
                                 chatroom.messages!.isNotEmpty &&
                                 chatroom.messages!.first.chatMessageType !=

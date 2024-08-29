@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:huawei_push/huawei_push.dart';
 import 'package:lottie/lottie.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LandingView extends StatefulWidget {
   const LandingView({super.key});
@@ -64,19 +65,22 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
         return;
       }
     }
-    await OneSignal.Notifications.requestPermission(true).then((isAllowed) {
-      debugPrint('OneSignal Permission is: $isAllowed');
-    }).catchError((e) {
-      debugPrint('OneSignal Permission Error $e');
-    });
+
+    final isAllowed = await OneSignal.Notifications.requestPermission(true);
+
+    debugPrint(
+        'OneSignal Permission is: $isAllowed for user --> ${Get.find<AuthController>().user?.id}');
     await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
         .then((value) async {
-      Push.getTokenStream.listen((t) {
-        print("TOKEN --> $t");
-      }, onError: (e) {
-        print("TOKEN ERROR --> $e");
-      });
-      Push.getToken("");
+      // Push.getTokenStream.listen((t) {
+      //   print("TOKEN --> $t");
+      // }, onError: (e) {
+      //   print("TOKEN ERROR --> $e");
+      // });
+      // Push.getToken("");
+      // Push.onMessageReceivedStream.listen((event) {
+      //   log("A message has arrived.");
+      // });
 
       // if (Get.find<AuthController>().user?.email != null) {
       //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
@@ -235,8 +239,8 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
       init: ChatController(),
       initState: (_) {},
       builder: (cntrlr) {
-        bool isAnyUnread = cntrlr.allChatrooms
-            .any((element) => (element.unreadCount ?? 0) > 0);
+        bool isAnyUnread =
+            cntrlr.allChatroom.any((element) => (element.unreadCount ?? 0) > 0);
         return Badge(
           isLabelVisible: isAnyUnread,
           largeSize: 12,
