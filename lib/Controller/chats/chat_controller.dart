@@ -13,10 +13,9 @@ import 'package:app/Utils/comon.dart';
 import 'package:app/Utils/loading_overlays.dart';
 import 'package:app/Utils/logging.dart';
 import 'package:app/View/Chat/call_screen.dart';
-import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_badge_control/flutter_app_badge_control.dart';
+import 'package:flutter_app_icon_badge/flutter_app_icon_badge.dart';
 import 'package:flutter_ringtone_manager/flutter_ringtone_manager.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:get/get.dart';
@@ -451,16 +450,16 @@ class ChatController extends GetxController {
 
   updateBadge() async {
     // if (await AppBadgePlus.isSupported()) {
-    if (await FlutterAppBadgeControl.isAppBadgeSupported()) {
+    if (await FlutterAppIconBadge.isAppBadgeSupported()) {
       final count = allChatroom.fold(0, (previousValue, element) {
         if (element.unreadCount == null) return previousValue;
         return previousValue + element.unreadCount!;
       });
 
       if (count == 0) {
-        await FlutterAppBadgeControl.removeBadge();
+        await FlutterAppIconBadge.removeBadge();
       } else {
-        await FlutterAppBadgeControl.updateBadgeCount(count);
+        await FlutterAppIconBadge.updateBadge(count);
       }
       log("BADGE APPLIED $count");
     }
