@@ -18,3 +18,9 @@
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
 -dontwarn io.flutter.embedding.**
+
+## Pushy
+-dontwarn me.pushy.**
+-keep class me.pushy.** { *; }
+-keep class androidx.core.app.** { *; }
+-keep class android.support.v4.app.** { *; }

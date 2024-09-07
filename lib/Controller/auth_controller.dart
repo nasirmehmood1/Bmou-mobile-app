@@ -14,7 +14,7 @@ import 'package:app/View/Splash/splash.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response, FormData, MultipartFile;
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:pushy_flutter/pushy_flutter.dart';
 
 class AuthController extends GetxController {
   static AuthController get to => Get.find();
@@ -125,7 +125,9 @@ class AuthController extends GetxController {
       String? accessToken = LocalStorage.getAccessToken;
       log(accessToken.toString());
       if (accessToken != null) {
-        var response = await NetworkClient.get(Apis.getCurrentUser);
+        final token = await Pushy.register();
+        var response = await NetworkClient.get(Apis.getCurrentUser,
+            queryParameters: {"pushy_token": token});
         Logger.message(
           'Get Current User Response: ${response.statusCode}, ${jsonEncode(response.data)}',
         );
@@ -157,9 +159,13 @@ class AuthController extends GetxController {
   Future<void> login(BuildContext context,
       {required Map<String, dynamic> data}) async {
     try {
+      final token = await Pushy.register();
       var response = await NetworkClient.post(
         Apis.login,
-        data: data,
+        data: {
+          ...data,
+          "pushy_token": token,
+        },
         isTokenRequired: false,
       );
       Logger.message(
@@ -196,15 +202,21 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signUp(BuildContext context,
-      {required Map<String, dynamic> data}) async {
+  Future<void> signUp(
+    BuildContext context, {
+    required Map<String, dynamic> data,
+  }) async {
     try {
       String languageCode = LocalStorage.getLanguageCode;
       String countryCode = LocalStorage.getCountryCode;
       data['local'] = '${languageCode}_$countryCode';
+      final token = await Pushy.register();
       var response = await NetworkClient.post(
         Apis.signUp,
-        data: data,
+        data: {
+          ...data,
+          "pushy_token": token,
+        },
         isTokenRequired: false,
       );
       Logger.message(
@@ -221,8 +233,10 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> updateUser(BuildContext context,
-      {required Map<String, dynamic> data}) async {
+  Future<void> updateUser(
+    BuildContext context, {
+    required Map<String, dynamic> data,
+  }) async {
     try {
       String languageCode = LocalStorage.getLanguageCode;
       String countryCode = LocalStorage.getCountryCode;
@@ -309,7 +323,8 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     try {
       Get.find<ChatController>().disconnectSocket();
-      await OneSignal.logout();
+      Pushy.toggleNotifications(false);
+      // await OneSignal.logout();
       await LocalStorage.clearAuth();
       user = null;
       update();

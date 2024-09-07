@@ -20,10 +20,12 @@ import 'package:app/View/Profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:huawei_push/huawei_push.dart';
 import 'package:lottie/lottie.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pushy_flutter/pushy_flutter.dart';
+
+import '../../Model/Help/help_request.dart';
+import '../../Utils/loading_overlays.dart';
 
 class LandingView extends StatefulWidget {
   const LandingView({super.key});
@@ -48,7 +50,8 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
   }
 
   Future<void> onsignalSetup() async {
-    bool isNotificationAllowed = OneSignal.Notifications.permission;
+    // bool isNotificationAllowed = OneSignal.Notifications.permission;
+    bool isNotificationAllowed = await Permission.notification.isGranted;
     if (!isNotificationAllowed) {
       bool isAllowed = await Common.showPermissionBottomSheet(
         context: context,
@@ -66,52 +69,88 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
       }
     }
 
-    final isAllowed = await OneSignal.Notifications.requestPermission(true);
+    // final isAllowed = await OneSignal.Notifications.requestPermission(true);
+    final isAllowed = await Permission.notification.request();
 
     debugPrint(
-        'OneSignal Permission is: $isAllowed for user --> ${Get.find<AuthController>().user?.id}');
-    await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
-        .then((value) async {
-      // Push.getTokenStream.listen((t) {
-      //   print("TOKEN --> $t");
-      // }, onError: (e) {
-      //   print("TOKEN ERROR --> $e");
-      // });
-      // Push.getToken("");
-      // Push.onMessageReceivedStream.listen((event) {
-      //   log("A message has arrived.");
-      // });
+        'Notification Permission is: $isAllowed for user --> ${Get.find<AuthController>().user?.id}');
+    if (isAllowed.isDenied) return;
 
-      // if (Get.find<AuthController>().user?.email != null) {
-      //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
-      // }
-    }).catchError((e) {
-      debugPrint('OneSignal Login Error $e');
-    });
-    if (isListenAdded) return;
-    OneSignal.Notifications.addClickListener((event) async {
-      debugPrint('OneSignal Notification Clicked');
-      log("OneSignal Notification Clicked: ${jsonEncode(event.notification.additionalData)}");
-      final notificationData = event.notification.additionalData;
-      if (notificationData != null) {
-        if (notificationData['type'] == 'MESSAGE') {
+    try {
+      // Register the user for push notifications
+      String deviceToken = await Pushy.register();
+
+      // Print token to console/logcat
+      print('Device token: $deviceToken');
+
+      // Listen for notification click
+      Pushy.setNotificationClickListener((Map<String, dynamic> data) async {
+        log("Notification received :: ${jsonEncode(data)}");
+
+        debugPrint('OneSignal Notification Clicked');
+        log("OneSignal Notification Clicked: ${jsonEncode(data)}");
+
+        if (data['type'] == 'MESSAGE') {
           onItemTapped(3);
+        } else if (data['type'] == 'HELP') {
+          HelpRequest request = HelpRequest.fromJson(jsonDecode(data['data']));
+          await kOverlayWithAsync(asyncFunction: () async {
+            await Future.delayed(const Duration(milliseconds: 500));
+          });
+          // Get.bottomSheet(
+          //   HelpResponseWidget(request: request),
+          //   persistent: false,
+          //   isScrollControlled: true,
+          //   ignoreSafeArea: false,
+          // );
         }
-        //  else if (notificationData['type'] == 'HELP') {
-        //   HelpRequest request =
-        //       HelpRequest.fromJson(jsonDecode(jsonEncode(notificationData)));
-        //   await kOverlayWithAsync(asyncFunction: () async {
-        //     await Future.delayed(const Duration(milliseconds: 500));
-        //   });
-        //   Get.bottomSheet(
-        //     HelpResponseWidget(request: request),
-        //     persistent: false,
-        //     isScrollControlled: true,
-        //     ignoreSafeArea: false,
-        //   );
-        // }
-      }
-    });
+      });
+    } catch (error) {
+      log("ERROR IN NOTIFICATIONS -> ${error.toString()}");
+    }
+
+    // await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
+    // .then((value) async {
+    // Push.getTokenStream.listen((t) {
+    //   print("TOKEN --> $t");
+    // }, onError: (e) {
+    //   print("TOKEN ERROR --> $e");
+    // });
+    // Push.getToken("");
+    // Push.onMessageReceivedStream.listen((event) {
+    //   log("A message has arrived.");
+    // });
+
+    // if (Get.find<AuthController>().user?.email != null) {
+    //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
+    // }
+    // }).catchError((e) {
+    //   debugPrint('OneSignal Login Error $e');
+    // });
+    // if (isListenAdded) return;
+    // OneSignal.Notifications.addClickListener((event) async {
+    //   debugPrint('OneSignal Notification Clicked');
+    //   log("OneSignal Notification Clicked: ${jsonEncode(event.notification.additionalData)}");
+    //   final notificationData = event.notification.additionalData;
+    //   if (notificationData != null) {
+    //     if (notificationData['type'] == 'MESSAGE') {
+    //       onItemTapped(3);
+    //     }
+    //  else if (notificationData['type'] == 'HELP') {
+    //   HelpRequest request =
+    //       HelpRequest.fromJson(jsonDecode(jsonEncode(notificationData)));
+    //   await kOverlayWithAsync(asyncFunction: () async {
+    //     await Future.delayed(const Duration(milliseconds: 500));
+    //   });
+    //   Get.bottomSheet(
+    //     HelpResponseWidget(request: request),
+    //     persistent: false,
+    //     isScrollControlled: true,
+    //     ignoreSafeArea: false,
+    //   );
+    // }
+    //   }
+    // });
     isListenAdded = true;
   }
 
@@ -136,7 +175,7 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    OneSignal.Notifications.removeClickListener((event) {});
+    // OneSignal.Notifications.removeClickListener((event) {});
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

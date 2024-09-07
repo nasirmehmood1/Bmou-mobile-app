@@ -46,12 +46,13 @@
     <!-- Solid -->
     <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE"/>
 
-    <!-- Huawei -->
-    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
-    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS" />
-    <uses-permission android:name="com.huawei.android.launcher.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="com.vivo.notification.permission.BADGE_ICON" />
 
 
+
+    <!-- Pushy Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- End Pushy Permissions -->
 
     <application
         android:name="${applicationName}"
@@ -61,20 +62,14 @@
         android:showWhenLocked="true"
         android:turnScreenOn="true"
         android:usesCleartextTraffic="true">
-
         <meta-data
-        android:name="push_kit_auto_init_enabled"
-        android:value="true"/>
+        android:name="flutterEmbedding"
+        android:value="2" />
 
-
-
+        <!-- Badger -->
         <service
-            android:name="com.onesignal.notifications.services.HmsMessageServiceOneSignal"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+        android:name="shop.itbug.xiaomi_badger.service.NotifService"
+        android:exported="false" />
 
         <!-- Image Cropper -->
         <activity
@@ -99,14 +94,51 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+
+
+
+
+        <!-- Push Notifications  -->
         <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
+        android:name="me.pushy.sdk.notification.icon"
+        android:resource="@mipmap/ic_notify" />
 
-        <meta-data android:name="com.onesignal.preferHMS" android:value="true"/>
+        <!-- Pushy Declarations -->
+        <!-- Internal Notification Receiver -->
+        <!-- Do not modify - internal BroadcastReceiver that sends notifications to your Flutter app -->
+        <receiver android:name="me.pushy.sdk.flutter.internal.PushyInternalReceiver" android:exported="false">
+            <intent-filter>
+                <!-- Do not modify this -->
+                <action android:name="pushy.me" />
+            </intent-filter>
+        </receiver>
 
+        <!-- Pushy Update Receiver -->
+        <!-- Do not modify - internal BroadcastReceiver that restarts the listener service -->
+        <receiver android:name="me.pushy.sdk.receivers.PushyUpdateReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Pushy Boot Receiver -->
+        <!-- Do not modify - internal BroadcastReceiver that restarts the listener service -->
+        <receiver android:name="me.pushy.sdk.receivers.PushyBootReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Pushy Socket Service -->
+        <!-- Do not modify - internal service -->
+        <service android:name="me.pushy.sdk.services.PushySocketService" android:stopWithTask="false" />
+
+        <!-- Pushy Job Service (added in Pushy SDK 1.0.35) -->
+        <!-- Do not modify - internal service -->
+        <service android:name="me.pushy.sdk.services.PushyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:stopWithTask="false" />
+        <!-- End Pushy Declarations -->
     </application>
-
 </manifest>

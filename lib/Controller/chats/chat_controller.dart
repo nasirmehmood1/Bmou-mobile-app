@@ -13,7 +13,6 @@ import 'package:app/Utils/comon.dart';
 import 'package:app/Utils/loading_overlays.dart';
 import 'package:app/Utils/logging.dart';
 import 'package:app/View/Chat/call_screen.dart';
-import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_manager/flutter_ringtone_manager.dart';
@@ -21,6 +20,7 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:xiaomi_badger/xiaomi_badger.dart';
 
 import '../../Model/chats/chat_message.dart';
 
@@ -449,19 +449,15 @@ class ChatController extends GetxController {
   }
 
   updateBadge() async {
-    // if (await AppBadgePlus.isSupported()) {
-    if (await AppBadgePlus.isSupported()) {
-      final count = allChatroom.fold(0, (previousValue, element) {
-        if (element.unreadCount == null) return previousValue;
-        return previousValue + element.unreadCount!;
-      });
+    final count = allChatroom.fold(0, (previousValue, element) {
+      if (element.unreadCount == null) return previousValue;
+      return previousValue + element.unreadCount!;
+    });
 
-      if (count == 0) {
-        await AppBadgePlus.updateBadge(0);
-      } else {
-        await AppBadgePlus.updateBadge(count);
-      }
-      log("BADGE APPLIED $count");
+    if (count == 0) {
+      XiaomiBadger.remove();
+    } else {
+      XiaomiBadger.setBag(count);
     }
   }
 

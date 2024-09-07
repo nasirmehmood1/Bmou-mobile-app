@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:pushy_flutter/pushy_flutter.dart';
 
 import 'Constants/language.dart';
 import 'Constants/theme.dart';
@@ -44,8 +48,10 @@ Future<void> main() async {
     debugPrint(DateFormat('EEEE, MMMM, dd, yyyy, h:mm a', 'zh_CH').format(now));
   });
 
-  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  OneSignal.initialize("d7785c40-cb60-4c08-bf09-d64a59dc0066");
+  // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // OneSignal.initialize("d7785c40-cb60-4c08-bf09-d64a59dc0066");
+  Pushy.listen();
+  Pushy.setNotificationListener(backgroundNotificationListener);
 
   runApp(const MyApp());
 }
@@ -72,4 +78,67 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+@pragma('vm:entry-point')
+void backgroundNotificationListener(Map<String, dynamic> data) async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    "channel_id_4",
+    data['title'] ?? '0',
+    channelShowBadge: false,
+    importance: Importance.max,
+    priority: Priority.high,
+    onlyAlertOnce: true,
+  );
+
+  final InitializationSettings notificationSettings = InitializationSettings(
+    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    iOS: DarwinInitializationSettings(
+      requestSoundPermission: true,
+      requestBadgePermission: true,
+      requestAlertPermission: true,
+      defaultPresentSound: true,
+      defaultPresentAlert: true,
+      defaultPresentBanner: true,
+      requestCriticalPermission: true,
+    ),
+  );
+
+  final bool? isInitialized = await flutterLocalNotificationsPlugin.initialize(
+    notificationSettings,
+    onDidReceiveBackgroundNotificationResponse:
+        _onDidReceiveBackgroundNotificationResponse,
+    onDidReceiveNotificationResponse: (message) async {},
+  );
+
+  final NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  flutterLocalNotificationsPlugin.show(
+    (await flutterLocalNotificationsPlugin.getActiveNotifications()).length,
+    data['title'],
+    data['content'],
+    platformChannelSpecifics,
+    payload: jsonEncode(data),
+  );
+
+  // // Print notification payload data
+  // log('DATA ==> ${data}');
+
+  // Pushy.setNotificationIcon("@mipmap/ic_launcher");
+  // Pushy.notify(data['title'] ?? 'Bumou',
+  // data['content'] ?? "A new message has arrived.", data);
+}
+
+@pragma('vm:entry-point')
+Future<void> _onDidReceiveBackgroundNotificationResponse(
+    NotificationResponse message) async {
+  print("Handling a background message: ${message.actionId}");
+
+  await Firebase.initializeApp();
+
+  debugPrint("Background message received" + "-" * 20);
 }
