@@ -3,45 +3,12 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:unlock_detector/unlock_detector.dart';
 import 'package:timezone/data/latest.dart' as tz;
-
-const notificationChannelId = 'my_foreground';
 
 // this will be used for notification id, So you can update your custom notification with this id.
 const notificationId = 888;
-
-Future<void> initializeService() async {
-  final service = FlutterBackgroundService();
-
-  await service.configure(
-    iosConfiguration: IosConfiguration(
-      autoStart: true,
-      onForeground: onStart,
-      // onBackground: onIosBackground,
-    ),
-    androidConfiguration: AndroidConfiguration(
-      autoStart: true,
-      onStart: onStart,
-      isForegroundMode: true,
-      autoStartOnBoot: true,
-    ),
-  );
-}
-
-@pragma('vm:entry-point')
-void onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-
-  UnlockDetector.stream.listen((event) {
-    if (event.isScreenOn) {
-      NotificationsService().show();
-    }
-  });
-}
 
 @pragma('vm:entry-point')
 Future<void> _onDidReceiveBackgroundNotificationResponse(

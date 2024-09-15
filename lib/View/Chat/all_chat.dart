@@ -88,28 +88,41 @@ class _ChatRoomViewState extends State<ChatRoomView> {
                             bool isDeletedUser =
                                 chatroom.members!.first.id == '';
                             return Slidable(
+                              key: ValueKey(index),
                               endActionPane: ActionPane(
-                                motion: const DrawerMotion(),
-                                extentRatio: 0.2,
+                                motion: const ScrollMotion(),
+                                extentRatio: 0.25,
+                                openThreshold: 0.1,
                                 children: [
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: () async {
-                                        if (await DeleteChatConfirmationDialog
-                                            .confirm(context)) {
-                                          cntrlr.deleteChatRoom(chatroom);
-                                        }
-                                      },
-                                      child: Ink(
-                                        height: double.maxFinite,
-                                        color: Colors.red,
-                                        child: const Icon(
-                                          Icons.delete,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
+                                  SlidableAction(
+                                    onPressed: (ctx) async {
+                                      if (await DeleteChatConfirmationDialog
+                                          .confirm(context)) {
+                                        cntrlr.deleteChatRoom(chatroom);
+                                      }
+                                    },
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    icon: Icons.delete,
                                   ),
+                                  // Expanded(
+                                  //   child: InkWell(
+                                  // onTap: () async {
+                                  //   if (await DeleteChatConfirmationDialog
+                                  //       .confirm(context)) {
+                                  //     cntrlr.deleteChatRoom(chatroom);
+                                  //   }
+                                  // },
+                                  //     child: Ink(
+                                  //       height: double.maxFinite,
+                                  //       color: Colors.red,
+                                  //       child: const Icon(
+                                  //         Icons.delete,
+                                  //         color: Colors.white,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                               child: ListTile(

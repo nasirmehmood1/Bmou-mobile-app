@@ -129,7 +129,7 @@ class AuthController extends GetxController {
         var response = await NetworkClient.get(Apis.getCurrentUser,
             queryParameters: {"pushy_token": token});
         Logger.message(
-          'Get Current User Response: ${response.statusCode}, ${jsonEncode(response.data)}',
+          'Get Current User Response: ${response.statusCode}, ${jsonEncode(response.data)} :: ${token}',
         );
         if (response.statusCode == 200) {
           await setUser(response.data);
@@ -322,9 +322,10 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
-      Get.find<ChatController>().disconnectSocket();
+      if (Get.isRegistered<ChatController>()) {
+        Get.find<ChatController>().disconnectSocket();
+      }
       Pushy.toggleNotifications(false);
-      // await OneSignal.logout();
       await LocalStorage.clearAuth();
       user = null;
       update();

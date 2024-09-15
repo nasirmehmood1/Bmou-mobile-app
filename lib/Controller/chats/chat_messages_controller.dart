@@ -37,7 +37,6 @@ class ChatMessagesController extends GetxController {
         allMessages = (response.data as List)
             .map((e) => ChatMessage.fromJson(e))
             .toList();
-        // _markAllMessagesAsRead();
       }
     } on DioException catch (e) {
       errorMsg = Common.getErrorMsgOfDio(e);
@@ -91,8 +90,8 @@ class ChatMessagesController extends GetxController {
           }
         }
 
-        chatController.updateBadge();
         chatController.update();
+        chatController.updateBadge();
         update();
       }
     } on DioException catch (e) {

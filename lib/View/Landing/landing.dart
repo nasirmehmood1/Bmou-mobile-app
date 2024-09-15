@@ -50,8 +50,8 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
   }
 
   Future<void> onsignalSetup() async {
-    // bool isNotificationAllowed = OneSignal.Notifications.permission;
     bool isNotificationAllowed = await Permission.notification.isGranted;
+    print("NOTIFICATION PERMISSION IS --> ${isNotificationAllowed}");
     if (!isNotificationAllowed) {
       bool isAllowed = await Common.showPermissionBottomSheet(
         context: context,
@@ -77,17 +77,13 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
     if (isAllowed.isDenied) return;
 
     try {
-      // Register the user for push notifications
-      String deviceToken = await Pushy.register();
-
-      // Print token to console/logcat
-      print('Device token: $deviceToken');
+      if (await Pushy.isRegistered() == false) {
+        String deviceToken = await Pushy.register();
+        print('Device token: $deviceToken');
+      }
 
       // Listen for notification click
       Pushy.setNotificationClickListener((Map<String, dynamic> data) async {
-        log("Notification received :: ${jsonEncode(data)}");
-
-        debugPrint('OneSignal Notification Clicked');
         log("OneSignal Notification Clicked: ${jsonEncode(data)}");
 
         if (data['type'] == 'MESSAGE') {
@@ -97,64 +93,18 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
           await kOverlayWithAsync(asyncFunction: () async {
             await Future.delayed(const Duration(milliseconds: 500));
           });
-          // Get.bottomSheet(
-          //   HelpResponseWidget(request: request),
-          //   persistent: false,
-          //   isScrollControlled: true,
-          //   ignoreSafeArea: false,
-          // );
         }
       });
     } catch (error) {
       log("ERROR IN NOTIFICATIONS -> ${error.toString()}");
     }
 
-    // await OneSignal.login(Get.find<AuthController>().user?.id ?? "unknown-user")
-    // .then((value) async {
-    // Push.getTokenStream.listen((t) {
-    //   print("TOKEN --> $t");
-    // }, onError: (e) {
-    //   print("TOKEN ERROR --> $e");
-    // });
-    // Push.getToken("");
-    // Push.onMessageReceivedStream.listen((event) {
-    //   log("A message has arrived.");
-    // });
-
-    // if (Get.find<AuthController>().user?.email != null) {
-    //   OneSignal.User.addEmail(Get.find<AuthController>().user!.email!);
-    // }
-    // }).catchError((e) {
-    //   debugPrint('OneSignal Login Error $e');
-    // });
-    // if (isListenAdded) return;
-    // OneSignal.Notifications.addClickListener((event) async {
-    //   debugPrint('OneSignal Notification Clicked');
-    //   log("OneSignal Notification Clicked: ${jsonEncode(event.notification.additionalData)}");
-    //   final notificationData = event.notification.additionalData;
-    //   if (notificationData != null) {
-    //     if (notificationData['type'] == 'MESSAGE') {
-    //       onItemTapped(3);
-    //     }
-    //  else if (notificationData['type'] == 'HELP') {
-    //   HelpRequest request =
-    //       HelpRequest.fromJson(jsonDecode(jsonEncode(notificationData)));
-    //   await kOverlayWithAsync(asyncFunction: () async {
-    //     await Future.delayed(const Duration(milliseconds: 500));
-    //   });
-    //   Get.bottomSheet(
-    //     HelpResponseWidget(request: request),
-    //     persistent: false,
-    //     isScrollControlled: true,
-    //     ignoreSafeArea: false,
-    //   );
-    // }
-    //   }
-    // });
     isListenAdded = true;
   }
 
   _initializeNotification() async {
+    // Pushy.toggleForegroundService(true, this);
+
     // NotificationService notificationService=AwesomeNotificationService();
     // await notificationService.initialize();
     // notificationService.showNotification("Title", "Body",[
@@ -170,6 +120,11 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     debugPrint("Current state : $state");
+
+    if (state == AppLifecycleState.resumed) {
+      Pushy.toggleInAppBanner(true);
+      Get.find<ChatController>().getAllChatrooms(shouldShowLoading: false);
+    }
     _initializeNotification();
   }
 

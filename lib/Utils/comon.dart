@@ -244,7 +244,9 @@ class Common {
                                 .textTheme
                                 .bodyMedium!
                                 .copyWith(
-                                  color: cntrlr.selectedLanguage == index
+                                  color: Get.locale?.countryCode ==
+                                          cntrlr.locale[index]['locale']
+                                              .countryCode
                                       ? AppColors.primary
                                       : AppColors.black,
                                 ),

@@ -48,10 +48,12 @@ Future<void> main() async {
     debugPrint(DateFormat('EEEE, MMMM, dd, yyyy, h:mm a', 'zh_CH').format(now));
   });
 
-  // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  // OneSignal.initialize("d7785c40-cb60-4c08-bf09-d64a59dc0066");
   Pushy.listen();
+  Pushy.toggleNotifications(true);
   Pushy.setNotificationListener(backgroundNotificationListener);
+  Pushy.toggleInAppBanner(true);
+
+  // ForegroundService().stop();
 
   runApp(const MyApp());
 }
@@ -82,18 +84,16 @@ class MyApp extends StatelessWidget {
 
 @pragma('vm:entry-point')
 void backgroundNotificationListener(Map<String, dynamic> data) async {
+  log("NOTIFICATION ARRIVED --> ${jsonDecode(data['data'])}");
+  if (jsonDecode(data['data'])['sender'] == await LocalStorage.getUserId) {
+    log("DUPLICATE NOTIFICATION ARRIVED --> ${jsonDecode(data['data'])['sender']}");
+    return;
+  }
+  ;
+  // print(
+  //     "NOTIFICATION ARRIVED -- ${}");
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-
-  AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    "channel_id_4",
-    data['title'] ?? '0',
-    channelShowBadge: false,
-    importance: Importance.max,
-    priority: Priority.high,
-    onlyAlertOnce: true,
-  );
 
   final InitializationSettings notificationSettings = InitializationSettings(
     android: AndroidInitializationSettings('@mipmap/ic_launcher'),
@@ -114,9 +114,27 @@ void backgroundNotificationListener(Map<String, dynamic> data) async {
         _onDidReceiveBackgroundNotificationResponse,
     onDidReceiveNotificationResponse: (message) async {},
   );
+  if (isInitialized == null || !isInitialized) {
+    print("FAILED TO INITIALIZE NOTIFICATIONS");
+    return;
+  }
 
-  final NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+  final NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: AndroidNotificationDetails(
+      "channel_id_4",
+      data['title'] ?? '0',
+      channelShowBadge: false,
+      importance: Importance.max,
+      priority: Priority.high,
+      onlyAlertOnce: true,
+    ),
+    iOS: DarwinNotificationDetails(
+      interruptionLevel: InterruptionLevel.timeSensitive,
+      presentAlert: true,
+      presentSound: true,
+      presentBanner: true,
+    ),
+  );
   flutterLocalNotificationsPlugin.show(
     (await flutterLocalNotificationsPlugin.getActiveNotifications()).length,
     data['title'],
@@ -125,12 +143,7 @@ void backgroundNotificationListener(Map<String, dynamic> data) async {
     payload: jsonEncode(data),
   );
 
-  // // Print notification payload data
-  // log('DATA ==> ${data}');
-
-  // Pushy.setNotificationIcon("@mipmap/ic_launcher");
-  // Pushy.notify(data['title'] ?? 'Bumou',
-  // data['content'] ?? "A new message has arrived.", data);
+  Pushy.toggleInAppBanner(false);
 }
 
 @pragma('vm:entry-point')

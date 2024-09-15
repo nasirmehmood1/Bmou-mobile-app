@@ -70,6 +70,9 @@
         <service
         android:name="shop.itbug.xiaomi_badger.service.NotifService"
         android:exported="false" />
+        <service
+            android:name=".BadgeIntentService"
+            android:exported="false"></service>
 
         <!-- Image Cropper -->
         <activity

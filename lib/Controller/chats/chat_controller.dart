@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:app/Constants/api.dart';
 import 'package:app/Controller/chats/chat_messages_controller.dart';
@@ -15,12 +16,12 @@ import 'package:app/Utils/logging.dart';
 import 'package:app/View/Chat/call_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_ringtone_manager/flutter_ringtone_manager.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:xiaomi_badger/xiaomi_badger.dart';
 
 import '../../Model/chats/chat_message.dart';
 
@@ -361,6 +362,7 @@ class ChatController extends GetxController {
         } else {}
 
         allChatroom.insert(0, newChatRoom);
+        updateBadge();
         update();
       });
     } catch (e) {
@@ -424,10 +426,14 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> getAllChatrooms() async {
+  Future<void> getAllChatrooms({
+    bool shouldShowLoading = true,
+  }) async {
     try {
-      isLoading = true;
-      update();
+      if (shouldShowLoading) {
+        isLoading = true;
+        update();
+      }
       final response = await NetworkClient.get(
           "${Apis.chatrooms}?page=$page&pageSize=$pageSize");
       Logger.message("Get All Chatrooms: ${response.statusCode}}");
@@ -454,10 +460,17 @@ class ChatController extends GetxController {
       return previousValue + element.unreadCount!;
     });
 
-    if (count == 0) {
-      XiaomiBadger.remove();
-    } else {
-      XiaomiBadger.setBag(count);
+    if (Platform.isIOS) {
+      if (await FlutterAppBadger.isAppBadgeSupported()) {
+        await FlutterAppBadger.updateBadgeCount(count);
+
+        log("BADGE COUNT UPDATED TO -> $count");
+      }
+    } else if (Platform.isAndroid) {
+      // await FlutterDynamicIcon.setApplicationIconBadgeNumber(count);
+      // if (await FlutterAppIconBadge.isAppBadgeSupported()) {
+      //   FlutterAppIconBadge.updateBadge(count);
+      // }
     }
   }
 
