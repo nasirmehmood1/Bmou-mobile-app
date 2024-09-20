@@ -6,7 +6,7 @@ import 'package:app/Controller/momment_controller.dart';
 import 'package:app/Model/moment.dart';
 import 'package:app/Utils/image_picker.dart';
 import 'package:app/Utils/loading_overlays.dart';
-import 'package:app/View/Widget/carousel.dart';
+import 'package:app/View/Widget/carousel.dart' as customCarousel;
 import 'package:app/View/Widget/k_net_image.dart';
 import 'package:app/View/Widget/video_thumbnail_widget.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +137,7 @@ class _CreatePostState extends State<CreatePost> {
                             GestureDetector(
                               onTap: () {
                                 Get.to(
-                                  () => CarouselView(
+                                  () => customCarousel.CarouselView(
                                     mediaList: mediaAttachments,
                                     index: index,
                                   ),

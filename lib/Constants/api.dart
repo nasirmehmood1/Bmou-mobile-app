@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../Data/Local/hive_storage.dart';
 
 class Apis {
@@ -8,6 +10,10 @@ class Apis {
   // Extra
   static String privacyPolicy =
       '$baseUrl/bumou/privacy-policy?lang=${LocalStorage.getLanguageCode}';
+
+  //Aliyue app data 
+  static const String aliyueApiKey='334974694';
+  static const String aliyueAppSecret='1b2e1fd964dd4a338d88cde4e468323f';
 
   //Auth
   static const String signUp = '$baseUrl/auth/register';
@@ -53,4 +59,5 @@ class Apis {
   static const String cancelHelp = '$baseUrl/help/cancel';
   static const String getOngoingHelp = '$baseUrl/help/ongoing';
   static const String acceptHelp = '$baseUrl/help/accept';
+ 
 }

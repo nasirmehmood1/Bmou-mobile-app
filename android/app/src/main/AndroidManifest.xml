@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="app.bumoumobile.com">
-
+    
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -65,6 +65,9 @@
         <meta-data
         android:name="flutterEmbedding"
         android:value="2" />
+        <meta-data android:name="com.alibaba.app.appkey" android:value="334974694"/> 
+        <meta-data android:name="com.alibaba.app.appsecret" android:value="1b2e1fd964dd4a338d88cde4e468323f"/> 
+
 
         <!-- Badger -->
         <service
@@ -80,7 +83,7 @@
         android:screenOrientation="portrait"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <!-- END::Image Cropper -->
-
+       
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -143,5 +146,18 @@
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:stopWithTask="false" />
         <!-- End Pushy Declarations -->
+        <receiver
+    android:name="${applicationName}"
+    android:exported="false"> 
+    <intent-filter>
+        <action android:name="com.alibaba.push2.action.NOTIFICATION_OPENED" />
+    </intent-filter>
+    <intent-filter>
+        <action android:name="com.alibaba.push2.action.NOTIFICATION_REMOVED" />
+    </intent-filter>
+    <intent-filter>
+        <action android:name="com.alibaba.sdk.android.push.RECEIVE" />
+    </intent-filter>
+</receiver>
     </application>
 </manifest>

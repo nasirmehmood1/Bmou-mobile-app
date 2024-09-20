@@ -9,7 +9,6 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../Utils/comon.dart';
-import '../auth_controller.dart';
 
 class ChatMessagesController extends GetxController {
   List<ChatMessage> allMessages = [];

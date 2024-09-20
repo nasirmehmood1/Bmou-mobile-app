@@ -18,7 +18,7 @@ dependencies:
   # dropdown_textfield: ^1.0.8
   shimmer: ^3.0.0
   cached_network_image: ^3.3.0
-  syncfusion_flutter_charts: ^25.2.4
+  syncfusion_flutter_charts: ^25.2.7
   fl_chart: ^0.68.0
   dio: ^5.3.3
   hive_flutter: ^1.1.0
@@ -66,6 +66,7 @@ dependencies:
   flutter_local_notifications: ^17.2.2
   pushy_flutter: ^2.0.18
   flutter_app_badger: ^1.5.0
+  aliyun_push: ^0.1.6
 
 
 

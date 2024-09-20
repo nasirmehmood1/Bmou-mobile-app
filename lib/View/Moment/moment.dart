@@ -9,7 +9,7 @@ import 'package:app/View/Moment/Widget/commet_button.dart';
 import 'package:app/View/Moment/Widget/like_button.dart';
 import 'package:app/View/Moment/create_moment.dart';
 import 'package:app/View/Moment/moment_detail.dart';
-import 'package:app/View/Widget/carousel.dart';
+import 'package:app/View/Widget/carousel.dart'as customCarousel;
 import 'package:app/View/Widget/k_net_image.dart';
 import 'package:app/View/Widget/video_thumbnail_widget.dart';
 import 'package:flutter/material.dart';
@@ -355,7 +355,7 @@ class KMediaWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Get.to(() =>
-          CarouselView(mediaList: moment.mediaAttachments!, index: index)),
+         customCarousel.CarouselView(mediaList: moment.mediaAttachments!, index: index)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: media.type == MediaType.image

@@ -3,6 +3,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:aliyun_push/aliyun_push.dart';
+import 'package:app/Constants/api.dart';
 import 'package:app/Constants/color.dart';
 import 'package:app/Controller/auth_controller.dart';
 import 'package:app/Controller/chats/chat_controller.dart';
@@ -10,6 +12,7 @@ import 'package:app/Controller/friend_controller.dart';
 import 'package:app/Controller/help_controller.dart';
 import 'package:app/Controller/momment_controller.dart';
 import 'package:app/Controller/mood_controller.dart';
+import 'package:app/Services/aliyun_push_notification.dart';
 import 'package:app/Utils/comon.dart';
 import 'package:app/View/Chart/chart.dart';
 import 'package:app/View/Chat/all_chat.dart';
@@ -48,6 +51,8 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
     });
     super.initState();
   }
+     final AliyunPush aliyunPush = AliyunPush();
+
 
   Future<void> onsignalSetup() async {
     bool isNotificationAllowed = await Permission.notification.isGranted;
@@ -75,26 +80,40 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
     debugPrint(
         'Notification Permission is: $isAllowed for user --> ${Get.find<AuthController>().user?.id}');
     if (isAllowed.isDenied) return;
-
     try {
-      if (await Pushy.isRegistered() == false) {
-        String deviceToken = await Pushy.register();
-        print('Device token: $deviceToken');
-      }
+      await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret).then((value) {
+        var code = value['code'];
+        if (code == kAliyunPushSuccessCode) {
+           print('Init Aliyun Push successfully');
+              } else {
+            String errorMsg = value['errorMsg'];
+           print('Init Aliyun Push  not successfully $errorMsg');
+                     }});
 
       // Listen for notification click
-      Pushy.setNotificationClickListener((Map<String, dynamic> data) async {
-        log("OneSignal Notification Clicked: ${jsonEncode(data)}");
+      void onAliyunNotificationClicked(Map<String, dynamic> data) async {
+  try {
+    log("Aliyun Notification Clicked: ${jsonEncode(data)}");
 
-        if (data['type'] == 'MESSAGE') {
-          onItemTapped(3);
-        } else if (data['type'] == 'HELP') {
-          HelpRequest request = HelpRequest.fromJson(jsonDecode(data['data']));
-          await kOverlayWithAsync(asyncFunction: () async {
-            await Future.delayed(const Duration(milliseconds: 500));
-          });
-        }
+    if (data['type'] == 'MESSAGE') {
+      onItemTapped(3);
+    } else if (data['type'] == 'HELP') {
+      HelpRequest request = HelpRequest.fromJson(jsonDecode(data['data']));
+      await kOverlayWithAsync(asyncFunction: () async {
+        await Future.delayed(const Duration(milliseconds: 500));
       });
+    }
+  } catch (e) {
+    log("Error handling notification: $e");
+  }
+}
+
+// Initialize Aliyun push notification
+    AliyunPushNotification.initialize(
+  appKey: Apis.aliyueApiKey,
+  masterSecret: Apis.aliyueAppSecret,
+);
+AliyunPushNotification.setNotificationClickListener(onAliyunNotificationClicked);
     } catch (error) {
       log("ERROR IN NOTIFICATIONS -> ${error.toString()}");
     }
