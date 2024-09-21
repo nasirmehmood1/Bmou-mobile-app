@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:aliyun_push/aliyun_push.dart';
@@ -12,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart'; 
 
 
 import 'Constants/language.dart';
@@ -54,10 +55,9 @@ Future<void> main() async {
     debugPrint(DateFormat('EEEE, MMMM, dd, yyyy, h:mm a', 'en_US').format(now));
     debugPrint(DateFormat('EEEE, MMMM, dd, yyyy, h:mm a', 'zh_CH').format(now));
   });
-
+ await clearAliyunPushInitialization();
   // Initialize Aliyun Push
   await initAliyunPush();
-
   runApp(const MyApp());
 }
 
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         translations: 
- LocaleString(),
+        LocaleString(),
         locale: Locale(languageCode, countryCode),
         fallbackLocale: const Locale('en', 'US'),
         title: "咘呣 Bumou",
@@ -87,14 +87,50 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Aliyun Push Initialization
 Future<void> initAliyunPush() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  // Check if Aliyun Push has already been initialized
+  bool isInitialized = prefs.getBool('aliyunPushInitialized') ?? false;
+
+  if (isInitialized) {
+    developer.log('Aliyun Push is already initialized. Skipping initialization.');
+    return;
+  }
+
   final AliyunPush aliyunPush = AliyunPush();
+  aliyunPush.getDeviceId().then((token) {
+        developer.log('Device token: $token');
+      });
 
   // Create Android channel (if necessary)
   if (Platform.isAndroid) {
     await aliyunPush.createAndroidChannel('8.0up', 'TestChannel', 3, 'Test notification channel');
   }
+
+  // Initialize Aliyun Push with your app key and app secret
+  String appKey = Apis.aliyueApiKey;
+  String appSecret = Apis.aliyueAppSecret;
+
+  await aliyunPush.initPush(appKey: appKey, appSecret: appSecret).then((value) async {
+    var code = value['code'];
+    if (code == kAliyunPushSuccessCode) {
+      developer.log('Init Aliyun Push successfully');
+      aliyunPush.getDeviceId().then((token) {
+        developer.log('Device token: $token');
+      });
+
+      // Store the initialization state in SharedPreferences
+      await prefs.setBool('aliyunPushInitialized', true);
+
+      aliyunPush.getDeviceId().then((token) {
+        developer.log('Device token: $token');
+      });
+    } else {
+      String errorMsg = value['errorMsg'];
+      developer.log('Init Aliyun Push not successfully: $errorMsg');
+    }
+  });
 
   // Set message receiver
   aliyunPush.addMessageReceiver(
@@ -104,52 +140,45 @@ Future<void> initAliyunPush() async {
     onNotificationRemoved: onNotificationRemoved,
     onIOSChannelOpened: onIOSChannelOpened,
     onIOSRegisterDeviceTokenSuccess: onIOSRegisterDeviceTokenSuccess,
-    onIOSRegisterDeviceTokenFailed: onIOSRegisterDeviceTokenFailed, 
-
+    onIOSRegisterDeviceTokenFailed: onIOSRegisterDeviceTokenFailed,
   );
-
-  // Initialize Aliyun Push with your app key and app secret
-  String appKey = Apis.aliyueApiKey;
-  String appSecret = Apis.aliyueAppSecret;
-
-  await aliyunPush.initPush(appKey: appKey, appSecret: appSecret).then((value) {
-    var code = value['code'];
-    if (code == kAliyunPushSuccessCode) {
- print('Init Aliyun Push successfully');
- } else {
- String errorMsg = value['errorMsg'];
- print('Init Aliyun Push  not successfully $errorMsg');
-  }});
 }
+
+Future<void> clearAliyunPushInitialization() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('aliyunPushInitialized', false);
+  developer.log('Aliyun Push initialization status cleared.');
+}
+
 
 // Aliyun Push Callbacks
 Future<void> onNotification(Map<dynamic, dynamic> message) async {
-  log("Notification Received: $message");
+  developer.log("Notification Received: $message");
   await showLocalNotification(message);
 }
 
 Future<void> onMessage(Map<dynamic, dynamic> message) async {
-  log("Message Received: $message");
+  developer.log("Message Received: $message");
 }
 
 Future<void> onNotificationOpened(Map<dynamic, dynamic> message) async {
-  log("Notification Opened: $message");
+  developer.log("Notification Opened: $message");
 }
 
 Future<void> onNotificationRemoved(Map<dynamic, dynamic> message) async {
-  log("Notification Removed: $message");
+  developer.log("Notification Removed: $message");
 }
 
 Future<void> onIOSChannelOpened(Map<dynamic, dynamic> message) async {
-  log("iOS Channel Opened: $message");
+  developer.log("iOS Channel Opened: $message");
 }
 
 Future<void> onIOSRegisterDeviceTokenSuccess(Map<dynamic, dynamic> message) async {
-  log("iOS Device Token Registration Success: $message");
+  developer.log("iOS Device Token Registration Success: $message");
 }
 
 Future<void> onIOSRegisterDeviceTokenFailed(Map<dynamic, dynamic> message) async {
-  log("iOS Device Token Registration Failed: $message");
+  developer.log("iOS Device Token Registration Failed: $message");
 }
 
 // Local Notification Handler
@@ -201,5 +230,5 @@ Future<void> showLocalNotification(Map<dynamic, dynamic> message) async {
 @pragma('vm:entry-point')
 Future<void> _onDidReceiveBackgroundNotificationResponse(
     NotificationResponse message) async {
-  log("Handling a background message: ${message.actionId}");
+  developer.log("Handling a background message: ${message.actionId}");
 }

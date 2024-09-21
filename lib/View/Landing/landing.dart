@@ -13,6 +13,7 @@ import 'package:app/Controller/help_controller.dart';
 import 'package:app/Controller/momment_controller.dart';
 import 'package:app/Controller/mood_controller.dart';
 import 'package:app/Services/aliyun_push_notification.dart';
+import 'package:aliyun_push/aliyun_push.dart'; 
 import 'package:app/Utils/comon.dart';
 import 'package:app/View/Chart/chart.dart';
 import 'package:app/View/Chat/all_chat.dart';
@@ -81,18 +82,50 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
         'Notification Permission is: $isAllowed for user --> ${Get.find<AuthController>().user?.id}');
     if (isAllowed.isDenied) return;
     try {
-      await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret).then((value) {
-        var code = value['code'];
-        if (code == kAliyunPushSuccessCode) {
-           print('Init Aliyun Push successfully');
-              } else {
-            String errorMsg = value['errorMsg'];
-           print('Init Aliyun Push  not successfully $errorMsg');
-                     }});
+       if (await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret) == false) {
+        var deviceToken = await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret).then((value){
+        return value;
+      });
+        print('Device token: $deviceToken');
+      }
+  //add the listen for notification click from this '
 
+//  Pushy.setNotificationClickListener((Map<String, dynamic> data) async {
+//         log("OneSignal Notification Clicked: ${jsonEncode(data)}");
+
+//         if (data['type'] == 'MESSAGE') {
+//           onItemTapped(3);
+//         } else if (data['type'] == 'HELP') {
+//           HelpRequest request = HelpRequest.fromJson(jsonDecode(data['data']));
+//           await kOverlayWithAsync(asyncFunction: () async {
+//             await Future.delayed(const Duration(milliseconds: 500));
+//           });
+//         }
+//       });
+//     } catch (error) {
+//       log("ERROR IN NOTIFICATIONS -> ${error.toString()}");
+//     }
+
+//     isListenAdded = true;
+//   }
+
+//   _initializeNotification() async {
+//     // Pushy.toggleForegroundService(true, this);
+
+//     // NotificationService notificationService=AwesomeNotificationService();
+//     // await notificationService.initialize();
+//     // notificationService.showNotification("Title", "Body",[
+//     //   "assets/bitmap/verybad.png",
+//     //   "assets/bitmap/verybad.png",
+//     //   "assets/bitmap/verybad.png",
+//     //   "assets/bitmap/verybad.png",
+//     //   "assets/bitmap/verybad.png",
+//     // ],["Good","bad","wores","helo","he"]);
+//   }
       // Listen for notification click
-      void onAliyunNotificationClicked(Map<String, dynamic> data) async {
-  try {
+  void onAliyunNotificationClicked(Map<String, dynamic> data) async {
+      try {
+        
     log("Aliyun Notification Clicked: ${jsonEncode(data)}");
 
     if (data['type'] == 'MESSAGE') {
@@ -109,31 +142,15 @@ class _LandingViewState extends State<LandingView> with WidgetsBindingObserver {
 }
 
 // Initialize Aliyun push notification
-    AliyunPushNotification.initialize(
-  appKey: Apis.aliyueApiKey,
-  masterSecret: Apis.aliyueAppSecret,
-);
-AliyunPushNotification.setNotificationClickListener(onAliyunNotificationClicked);
+      aliyunPush.initAndroidThirdPush();
+        //  AliyunPush.setNotificationClickListener(onAliyunNotificationClicked);
     } catch (error) {
       log("ERROR IN NOTIFICATIONS -> ${error.toString()}");
     }
 
     isListenAdded = true;
   }
-
-  _initializeNotification() async {
-    // Pushy.toggleForegroundService(true, this);
-
-    // NotificationService notificationService=AwesomeNotificationService();
-    // await notificationService.initialize();
-    // notificationService.showNotification("Title", "Body",[
-    //   "assets/bitmap/verybad.png",
-    //   "assets/bitmap/verybad.png",
-    //   "assets/bitmap/verybad.png",
-    //   "assets/bitmap/verybad.png",
-    //   "assets/bitmap/verybad.png",
-    // ],["Good","bad","wores","helo","he"]);
-  }
+// included these lines...
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -144,7 +161,6 @@ AliyunPushNotification.setNotificationClickListener(onAliyunNotificationClicked)
       Pushy.toggleInAppBanner(true);
       Get.find<ChatController>().getAllChatrooms(shouldShowLoading: false);
     }
-    _initializeNotification();
   }
 
   @override

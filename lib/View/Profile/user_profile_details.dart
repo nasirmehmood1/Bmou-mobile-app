@@ -3,6 +3,7 @@ import 'package:app/Model/moment.dart';
 import 'package:app/Utils/loading_overlays.dart';
 import 'package:app/View/Moment/moment.dart';
 import 'package:app/View/Widget/k_net_image.dart';
+import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -19,10 +20,11 @@ class UserProfileDetails extends StatefulWidget {
 
 class _UserProfileDetailsState extends State<UserProfileDetails> {
   @override
-  void initState() {
+  Future<void> initState() async {
     // Get.put<UserDetailsController>(
     //   UserDetailsController(),
     // );
+    await initAliyunPush();
     super.initState();
   }
 

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:aliyun_push/aliyun_push.dart';
 import 'package:app/Constants/api.dart';
 import 'package:app/Controller/chats/chat_controller.dart';
 import 'package:app/Data/Local/hive_storage.dart';
 import 'package:app/Data/Network/request_client.dart';
 import 'package:app/Model/user.dart';
+import 'package:app/Services/aliyun_push_notification.dart';
 import 'package:app/Utils/comon.dart';
 import 'package:app/Utils/logging.dart';
 import 'package:app/View/Auth/login.dart';
@@ -34,6 +36,8 @@ class AuthController extends GetxController {
     checkAuth();
     super.onInit();
   }
+  final AliyunPush aliyunPush = AliyunPush();
+
 
   void validateEmail(BuildContext context, String value) {
     if (debounce?.isActive ?? false) debounce!.cancel();
@@ -125,9 +129,11 @@ class AuthController extends GetxController {
       String? accessToken = LocalStorage.getAccessToken;
       log(accessToken.toString());
       if (accessToken != null) {
-        final token = await Pushy.register();
+        final token =  await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret).then((value) {
+          return value;
+        },);
         var response = await NetworkClient.get(Apis.getCurrentUser,
-            queryParameters: {"pushy_token": token});
+            queryParameters: {"Aliyun_token": token});
         Logger.message(
           'Get Current User Response: ${response.statusCode}, ${jsonEncode(response.data)} :: ${token}',
         );
@@ -159,12 +165,14 @@ class AuthController extends GetxController {
   Future<void> login(BuildContext context,
       {required Map<String, dynamic> data}) async {
     try {
-      final token = await Pushy.register();
+      final token = await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret).then((value) {
+          return value;
+        },);
       var response = await NetworkClient.post(
         Apis.login,
         data: {
           ...data,
-          "pushy_token": token,
+          "Aliyun_token": token,
         },
         isTokenRequired: false,
       );
@@ -210,12 +218,14 @@ class AuthController extends GetxController {
       String languageCode = LocalStorage.getLanguageCode;
       String countryCode = LocalStorage.getCountryCode;
       data['local'] = '${languageCode}_$countryCode';
-      final token = await Pushy.register();
+      final token = await aliyunPush.initPush(appKey: Apis.aliyueApiKey, appSecret: Apis.aliyueAppSecret).then((value) {
+          return value;
+        },);
       var response = await NetworkClient.post(
         Apis.signUp,
         data: {
           ...data,
-          "pushy_token": token,
+          "Aliyun_token": token,
         },
         isTokenRequired: false,
       );
@@ -325,7 +335,7 @@ class AuthController extends GetxController {
       if (Get.isRegistered<ChatController>()) {
         Get.find<ChatController>().disconnectSocket();
       }
-      Pushy.toggleNotifications(false);
+      await aliyunPush.unbindAccount();
       await LocalStorage.clearAuth();
       user = null;
       update();
