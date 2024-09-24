@@ -7,8 +7,10 @@ import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:unlock_detector/unlock_detector.dart';
 
 import '../../Model/user.dart';
+import 'dart:developer' as developer;
 
 class UserProfileDetails extends StatefulWidget {
   const UserProfileDetails({super.key, this.imgTag = ''});

@@ -12,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:unlock_detector/unlock_detector.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'dart:developer'as developer;
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -22,6 +24,18 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+     UnlockDetectorStatus _status = UnlockDetectorStatus.screenOn;
+    UnlockDetector.stream.listen((status) {
+      setState(() {
+        _status = status;
+      });
+    });
+    developer.log("mobile phone status $_status");
+  }
   //scaffold key
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override

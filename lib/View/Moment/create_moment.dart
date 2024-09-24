@@ -13,7 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:unlock_detector/unlock_detector.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:developer' as developer;
 
 class CreatePost extends StatefulWidget {
   const CreatePost({super.key});
@@ -30,6 +32,11 @@ class _CreatePostState extends State<CreatePost> {
   VideoPlayerController? videoPlayerController;
   final TextEditingController textController = TextEditingController();
   bool isAnonymous = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

@@ -80,9 +80,15 @@ flutter {
     source '../..'
 }
 
+
 dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'com.google.firebase:firebase-messaging:23.1.2'
 //    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
+dependencies {
+
+    implementation 'com.aliyun.ams:alicloud-android-push:0.1.6' // Replace with the latest version
+
 }

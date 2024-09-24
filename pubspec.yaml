@@ -68,6 +68,7 @@ dependencies:
   flutter_app_badger: ^1.5.0
   aliyun_push: ^0.1.6
   shared_preferences: 
+  unlock_detector: ^0.1.0
 
 
 
